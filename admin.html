@@ -1,167 +1,277 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ZEUS - Painel de Controle</title>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <style>
-        :root { --maroon: #3D0009; --gold: #C9A84C; --cream: #F5F0E8; }
-        body { background: var(--cream); font-family: 'Segoe UI', sans-serif; margin: 0; display: flex; }
-        .sidebar { width: 260px; background: var(--maroon); color: var(--gold); height: 100vh; padding: 30px; position: fixed; box-sizing: border-box; }
-        .sidebar h2 { letter-spacing: 5px; border-bottom: 1px solid #5C0A14; padding-bottom: 10px; font-family: 'serif'; }
-        .main { margin-left: 260px; flex: 1; padding: 40px; }
-        .card { background: white; padding: 25px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); margin-bottom: 40px; }
-        input, textarea { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box; }
-        button { background: var(--maroon); color: var(--gold); padding: 12px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; width: 100%; text-transform: uppercase; transition: 0.3s; }
-        button:hover { background: #5C0A14; }
-        .btn-voltar { color: var(--gold); text-decoration: none; font-weight: bold; display: block; margin-bottom: 20px; border: 1px solid var(--gold); padding: 10px; text-align: center; border-radius: 4px; font-size: 0.9rem; transition: 0.3s; }
-        .btn-voltar:hover { background: var(--gold); color: var(--maroon); }
-        table { width: 100%; border-collapse: collapse; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
-        th { background: var(--maroon); color: var(--gold); padding: 15px; text-align: left; }
-        td { padding: 15px; border-bottom: 1px solid #eee; }
-        .btn-delete { background: #ff4444; color: white; padding: 8px 15px; border-radius: 4px; font-size: 0.7rem; width: auto; cursor: pointer; border: none; }
-        img.thumb { width: 50px; height: 50px; object-fit: cover; border-radius: 4px; background: #eee; }
-        #status-upload { font-size: 0.8rem; color: var(--maroon); margin-bottom: 10px; display: none; }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ZEUS — Urban Luxury</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Inter:wght@300;400;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --maroon-dark: #1a0004;
+      --maroon-velvet: #3D0009;
+      --maroon-light: #4d000b;
+      --gold: #C9A84C;
+      --cream: #F5F0E8;
+      --whatsapp: #25D366;
+    }
+
+    body { 
+      font-family: 'Inter', sans-serif; 
+      background: radial-gradient(circle at center, var(--maroon-light) 0%, var(--maroon-velvet) 40%, var(--maroon-dark) 100%);
+      background-attachment: fixed;
+      color: var(--cream); 
+      margin: 0;
+      overflow-x: hidden; 
+    }
+
+    /* DECORAÇÃO DE FUNDO */
+    .bg-text {
+      position: fixed;
+      font-family: 'Playfair Display', serif;
+      font-size: 15vw;
+      color: rgba(201, 168, 76, 0.03);
+      z-index: -1;
+      user-select: none;
+      white-space: nowrap;
+      font-weight: 900;
+    }
+    .t1 { top: 10%; left: -5%; transform: rotate(-5deg); }
+    .t2 { bottom: 10%; right: -5%; transform: rotate(5deg); }
+
+    header {
+      height: 50vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+    }
+
+    header h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(4rem, 15vw, 8rem);
+      letter-spacing: 15px;
+      color: var(--gold);
+      margin: 0;
+    }
+
+    /* FILTROS */
+    .filter-container {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      margin-bottom: 50px;
+      flex-wrap: wrap;
+      padding: 0 20px;
+    }
+
+    .filter-btn {
+      background: transparent;
+      border: 1px solid rgba(201, 168, 76, 0.3);
+      color: var(--gold);
+      padding: 10px 25px;
+      cursor: pointer;
+      font-size: 11px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      transition: 0.3s;
+      border-radius: 2px;
+    }
+
+    .filter-btn:hover, .filter-btn.active {
+      background: var(--gold);
+      color: var(--maroon-dark);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 50px;
+      max-width: 1300px;
+      margin: 0 auto 100px;
+      padding: 0 25px;
+    }
+
+    .product-card {
+      background: rgba(0, 0, 0, 0.25);
+      border: 1px solid rgba(201, 168, 76, 0.1);
+      backdrop-filter: blur(10px);
+      border-radius: 4px;
+      overflow: hidden;
+      transition: 0.4s;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .img-container {
+      width: 100%;
+      height: 450px;
+      overflow: hidden;
+    }
+
+    .img-container img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: 1s;
+    }
+
+    .info {
+      padding: 25px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      flex-grow: 1;
+    }
+
+    .info h3 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.5rem;
+      color: var(--gold);
+      margin: 0 0 5px;
+    }
+
+    .description {
+      font-size: 0.85rem;
+      font-weight: 300;
+      font-style: italic;
+      color: var(--cream);
+      opacity: 0.7;
+      margin-bottom: 15px;
+      line-height: 1.4;
+    }
+
+    .price {
+      font-size: 1.2rem;
+      font-weight: 600;
+      margin-bottom: 20px;
+    }
+
+    .bbuy {
+      width: 100%;
+      max-width: 260px;
+      background: var(--whatsapp);
+      color: white;
+      padding: 16px;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      font-size: 11px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      text-decoration: none;
+      border-radius: 4px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .whatsapp-float {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      width: 60px;
+      height: 60px;
+      z-index: 1000;
+    }
+
+    footer {
+      padding: 60px;
+      text-align: center;
+      background: rgba(0,0,0,0.3);
+    }
+
+    .admin-access {
+      display: inline-block;
+      margin-top: 20px;
+      color: rgba(201, 168, 76, 0.4);
+      text-decoration: none;
+      font-size: 10px;
+      letter-spacing: 3px;
+    }
+  </style>
 </head>
 <body>
 
-    <div class="sidebar">
-        <h2>ZEUS</h2>
-        <p style="font-size: 0.8rem; letter-spacing: 2px;">PAINEL DE CONTROLE</p>
-        <br><br>
-        <a href="index.html" class="btn-voltar">← Ver Loja</a>
-        <button onclick="logout()" style="background:transparent; border: 1px solid var(--gold);">Sair do Sistema</button>
-    </div>
+  <div class="bg-text t1">LUXURY</div>
+  <div class="bg-text t2">URBAN</div>
 
-    <div class="main">
-        <h1>Gerenciar Catálogo</h1>
-        
-        <div class="card">
-            <h3>Adicionar Nova Peça</h3>
-            <input type="text" id="nome" placeholder="Nome da Peça">
-            <input type="number" id="preco" step="0.01" placeholder="Preço (Ex: 149.90)">
-            
-            <label style="font-size: 0.8rem; font-weight: bold;">Foto do Produto:</label>
-            <input type="file" id="arquivo-imagem" accept="image/*">
-            
-            <textarea id="desc" placeholder="Descrição da peça"></textarea>
-            
-            <p id="status-upload">Enviando imagem, aguarde...</p>
-            <button id="btn-salvar" onclick="salvar()">Publicar Produto</button>
-        </div>
+  <header>
+    <h1>ZEUS</h1>
+    <p style="letter-spacing: 5px; opacity: 0.6; font-size: 10px;">PREMIUM STREETWEAR</p>
+  </header>
 
-        <h3>Produtos em Exibição</h3>
-        <table>
-            <thead>
-                <tr>
-                    <th>Foto</th>
-                    <th>Nome</th>
-                    <th>Preço</th>
-                    <th>Ação</th>
-                </tr>
-            </thead>
-            <tbody id="tabela-corpo"></tbody>
-        </table>
-    </div>
+  <div class="filter-container">
+    <button class="filter-btn active" onclick="filtrar('todos')">Todos</button>
+    <button class="filter-btn" onclick="filtrar('Camisetas')">Camisetas</button>
+    <button class="filter-btn" onclick="filtrar('Conjuntos')">Conjuntos</button>
+    <button class="filter-btn" onclick="filtrar('Acessórios')">Acessórios</button>
+  </div>
 
-    <script>
-        const SUPABASE_URL = 'https://fxmoxqvtamsxqpabbade.supabase.co'; 
-        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ4bW94cXZ0YW1zeHFwYWJiYWRlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM0Njc3NTgsImV4cCI6MjA4OTA0Mzc1OH0.H2mn5rb2WChGw9yWMrdk3MpYIHH1N0hKZMeggOEiQBU';
-        const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  <section class="catalog">
+    <div class="grid" id="grid"></div>
+  </section>
 
-        async function verificarSessao() {
-            const { data } = await _supabase.auth.getSession();
-            if (!data.session) window.location.href = "login.html";
-        }
-        verificarSessao();
+  <a href="https://wa.me/55839XXXXXXXX" class="whatsapp-float" target="_blank">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" alt="WhatsApp" style="width:100%">
+  </a>
 
-        async function salvar() {
-            const nome = document.getElementById('nome').value;
-            const preco = document.getElementById('preco').value;
-            const descricao = document.getElementById('desc').value;
-            const arquivoInput = document.getElementById('arquivo-imagem');
-            const arquivo = arquivoInput.files[0];
-            const status = document.getElementById('status-upload');
-            const btn = document.getElementById('btn-salvar');
+  <footer>
+    <p style="color: var(--gold); letter-spacing: 5px; margin: 0;">ZEUS STORE</p>
+    <a href="admin.html" class="admin-access">Acesso Restrito</a>
+  </footer>
 
-            if (!nome || !preco || !arquivo) return alert("Preencha Nome, Preço e selecione uma Foto!");
+  <script>
+    const SUPABASE_URL = 'https://fxmoxqvtamsxqpabbade.supabase.co'; 
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ4bW94cXZ0YW1zeHFwYWJiYWRlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM0Njc3NTgsImV4cCI6MjA4OTA0Mzc1OH0.H2mn5rb2WChGw9yWMrdk3MpYIHH1N0hKZMeggOEiQBU';
+    const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-            // Inicia interface de carregamento
-            status.style.display = "block";
-            btn.disabled = true;
-            btn.innerText = "Processando...";
+    let produtosGerais = [];
 
-            try {
-                // 1. Upload da Imagem para o Storage
-                const extensao = arquivo.name.split('.').pop();
-                const nomeArquivo = `${Date.now()}.${extensao}`;
-                
-                const { data: uploadData, error: uploadError } = await _supabase.storage
-                    .from('fotos-produtos')
-                    .upload(nomeArquivo, arquivo);
+    async function carregar() {
+      const { data, error } = await _supabase.from('Produtos').select('*').order('id', { ascending: false });
+      if (error) return;
+      produtosGerais = data;
+      exibirProdutos(produtosGerais);
+    }
 
-                if (uploadError) throw uploadError;
+    function exibirProdutos(lista) {
+      const grid = document.getElementById('grid');
+      grid.innerHTML = '';
+      lista.forEach((p) => {
+        const desc = p.descricao || "";
+        grid.innerHTML += `
+          <div class="product-card">
+            <div class="img-container"><img src="${p.imagem_url}" loading="lazy"></div>
+            <div class="info">
+              <h3>${p.nome}</h3>
+              <p class="description">${desc}</p>
+              <span class="price">R$ ${p.preco}</span>
+              <a href="https://wa.me/55839XXXXXXXX?text=Salve Zeus! Quero essa peça: ${p.nome}" class="bbuy" target="_blank">
+                Pedir no WhatsApp
+              </a>
+            </div>
+          </div>
+        `;
+      });
+    }
 
-                // 2. Pegar a URL Pública
-                const { data: linkPublico } = _supabase.storage
-                    .from('fotos-produtos')
-                    .getPublicUrl(nomeArquivo);
+    function filtrar(categoria) {
+      document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+      event.target.classList.add('active');
 
-                const imagem_url = linkPublico.publicUrl;
+      if (categoria === 'todos') {
+        exibirProdutos(produtosGerais);
+      } else {
+        const filtrados = produtosGerais.filter(p => p.categoria && p.categoria.toLowerCase() === categoria.toLowerCase());
+        exibirProdutos(filtrados);
+      }
+    }
 
-                // 3. Salvar no Banco de Dados
-                const { error: dbError } = await _supabase.from('Produtos').insert([
-                    { nome, preco, imagem_url, descricao }
-                ]);
-
-                if (dbError) throw dbError;
-
-                alert("Peça publicada com sucesso na ZEUS!");
-                location.reload();
-
-            } catch (err) {
-                alert("Erro: " + err.message);
-            } finally {
-                status.style.display = "none";
-                btn.disabled = false;
-                btn.innerText = "Publicar Produto";
-            }
-        }
-
-        async function listarProdutos() {
-            const { data, error } = await _supabase.from('Produtos').select('*').order('id', { ascending: false });
-            const corpo = document.getElementById('tabela-corpo');
-            if (error) return console.error(error);
-
-            corpo.innerHTML = ''; 
-            data.forEach(item => {
-                corpo.innerHTML += `
-                    <tr>
-                        <td><img src="${item.imagem_url}" class="thumb" onerror="this.src='https://via.placeholder.com/50'"></td>
-                        <td>${item.nome}</td>
-                        <td>R$ ${item.preco}</td>
-                        <td><button class="btn-delete" onclick="excluir(${item.id})">REMOVER</button></td>
-                    </tr>
-                `;
-            });
-        }
-
-        async function excluir(id) {
-            if (confirm("Deseja remover este item definitivamente?")) {
-                const { error } = await _supabase.from('Produtos').delete().eq('id', id);
-                if (error) alert("Erro: " + error.message);
-                else { alert("Item removido!"); location.reload(); }
-            }
-        }
-
-        async function logout() {
-            await _supabase.auth.signOut();
-            window.location.href = "login.html";
-        }
-
-        listarProdutos();
-    </script>
+    carregar();
+  </script>
 </body>
 </html>
