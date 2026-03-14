@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ZEUS - Painel de Controle</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        :root { --maroon: #3D0009; --gold: #C9A84C; --cream: #F5F0E8; }
+        body { background: var(--cream); font-family: 'Segoe UI', sans-serif; margin: 0; display: flex; }
+        .sidebar { width: 260px; background: var(--maroon); color: var(--gold); height: 100vh; padding: 30px; position: fixed; box-sizing: border-box; }
+        .sidebar h2 { letter-spacing: 5px; border-bottom: 1px solid #5C0A14; padding-bottom: 10px; font-family: 'serif'; }
+        .main { margin-left: 260px; flex: 1; padding: 40px; }
+        .card { background: white; padding: 25px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); margin-bottom: 40px; }
+        input, textarea { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box; }
+        button { background: var(--maroon); color: var(--gold); padding: 12px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; width: 100%; text-transform: uppercase; transition: 0.3s; }
+        button:hover { background: #5C0A14; }
+        .btn-voltar { color: var(--gold); text-decoration: none; font-weight: bold; display: block; margin-bottom: 20px; border: 1px solid var(--gold); padding: 10px; text-align: center; border-radius: 4px; font-size: 0.9rem; transition: 0.3s; }
+        .btn-voltar:hover { background: var(--gold); color: var(--maroon); }
+        table { width: 100%; border-collapse: collapse; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+        th { background: var(--maroon); color: var(--gold); padding: 15px; text-align: left; }
+        td { padding: 15px; border-bottom: 1px solid #eee; }
+        .btn-delete { background: #ff4444; color: white; padding: 8px 15px; border-radius: 4px; font-size: 0.7rem; width: auto; cursor: pointer; border: none; }
+        img.thumb { width: 50px; height: 50px; object-fit: cover; border-radius: 4px; background: #eee; }
+        #status-upload { font-size: 0.8rem; color: var(--maroon); margin-bottom: 10px; display: none; }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar">
+        <h2>ZEUS</h2>
+        <p style="font-size: 0.8rem; letter-spacing: 2px;">PAINEL DE CONTROLE</p>
+        <br><br>
+        <a href="index.html" class="btn-voltar">← Ver Loja</a>
+        <button onclick="logout()" style="background:transparent; border: 1px solid var(--gold);">Sair do Sistema</button>
+    </div>
+
+    <div class="main">
+        <h1>Gerenciar Catálogo</h1>
+        
+        <div class="card">
+            <h3>Adicionar Nova Peça</h3>
+            <input type="text" id="nome" placeholder="Nome da Peça">
+            <input type="number" id="preco" step="0.01" placeholder="Preço (Ex: 149.90)">
+            
+            <label style="font-size: 0.8rem; font-weight: bold;">Foto do Produto:</label>
+            <input type="file" id="arquivo-imagem" accept="image/*">
+            
+            <textarea id="desc" placeholder="Descrição da peça"></textarea>
+            
+            <p id="status-upload">Enviando imagem, aguarde...</p>
+            <button id="btn-salvar" onclick="salvar()">Publicar Produto</button>
+        </div>
+
+        <h3>Produtos em Exibição</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Foto</th>
+                    <th>Nome</th>
+                    <th>Preço</th>
+                    <th>Ação</th>
+                </tr>
+            </thead>
+            <tbody id="tabela-corpo"></tbody>
+        </table>
+    </div>
+
+    <script>
+        const SUPABASE_URL = 'https://fxmoxqvtamsxqpabbade.supabase.co'; 
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ4bW94cXZ0YW1zeHFwYWJiYWRlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM0Njc3NTgsImV4cCI6MjA4OTA0Mzc1OH0.H2mn5rb2WChGw9yWMrdk3MpYIHH1N0hKZMeggOEiQBU';
+        const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        async function verificarSessao() {
+            const { data } = await _supabase.auth.getSession();
+            if (!data.session) window.location.href = "login.html";
+        }
+        verificarSessao();
+
+        async function salvar() {
+            const nome = document.getElementById('nome').value;
+            const preco = document.getElementById('preco').value;
+            const descricao = document.getElementById('desc').value;
+            const arquivoInput = document.getElementById('arquivo-imagem');
+            const arquivo = arquivoInput.files[0];
+            const status = document.getElementById('status-upload');
+            const btn = document.getElementById('btn-salvar');
+
+            if (!nome || !preco || !arquivo) return alert("Preencha Nome, Preço e selecione uma Foto!");
+
+            // Inicia interface de carregamento
+            status.style.display = "block";
+            btn.disabled = true;
+            btn.innerText = "Processando...";
+
+            try {
+                // 1. Upload da Imagem para o Storage
+                const extensao = arquivo.name.split('.').pop();
+                const nomeArquivo = `${Date.now()}.${extensao}`;
+                
+                const { data: uploadData, error: uploadError } = await _supabase.storage
+                    .from('fotos-produtos')
+                    .upload(nomeArquivo, arquivo);
+
+                if (uploadError) throw uploadError;
+
+                // 2. Pegar a URL Pública
+                const { data: linkPublico } = _supabase.storage
+                    .from('fotos-produtos')
+                    .getPublicUrl(nomeArquivo);
+
+                const imagem_url = linkPublico.publicUrl;
+
+                // 3. Salvar no Banco de Dados
+                const { error: dbError } = await _supabase.from('Produtos').insert([
+                    { nome, preco, imagem_url, descricao }
+                ]);
+
+                if (dbError) throw dbError;
+
+                alert("Peça publicada com sucesso na ZEUS!");
+                location.reload();
+
+            } catch (err) {
+                alert("Erro: " + err.message);
+            } finally {
+                status.style.display = "none";
+                btn.disabled = false;
+                btn.innerText = "Publicar Produto";
+            }
+        }
+
+        async function listarProdutos() {
+            const { data, error } = await _supabase.from('Produtos').select('*').order('id', { ascending: false });
+            const corpo = document.getElementById('tabela-corpo');
+            if (error) return console.error(error);
+
+            corpo.innerHTML = ''; 
+            data.forEach(item => {
+                corpo.innerHTML += `
+                    <tr>
+                        <td><img src="${item.imagem_url}" class="thumb" onerror="this.src='https://via.placeholder.com/50'"></td>
+                        <td>${item.nome}</td>
+                        <td>R$ ${item.preco}</td>
+                        <td><button class="btn-delete" onclick="excluir(${item.id})">REMOVER</button></td>
+                    </tr>
+                `;
+            });
+        }
+
+        async function excluir(id) {
+            if (confirm("Deseja remover este item definitivamente?")) {
+                const { error } = await _supabase.from('Produtos').delete().eq('id', id);
+                if (error) alert("Erro: " + error.message);
+                else { alert("Item removido!"); location.reload(); }
+            }
+        }
+
+        async function logout() {
+            await _supabase.auth.signOut();
+            window.location.href = "login.html";
+        }
+
+        listarProdutos();
+    </script>
+</body>
+</html>
