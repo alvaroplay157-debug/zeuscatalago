@@ -8,9 +8,10 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
     <style>
         :root { --maroon: #1a0004; --gold: #C9A84C; --cream: #F5F0E8; --white: #ffffff; }
-        body { background: #f8f8f8; font-family: 'Inter', sans-serif; margin: 0; display: flex; color: #222; opacity: 0; transition: opacity 0.5s; }
+        body { background: #f8f8f8; font-family: 'Inter', sans-serif; margin: 0; display: flex; color: #222; opacity: 0; transition: opacity 0.4s; }
         
-        .sidebar { width: 280px; background: var(--maroon); color: var(--gold); height: 100vh; padding: 40px 20px; position: fixed; }
+        /* Sidebar Luxo */
+        .sidebar { width: 280px; background: var(--maroon); color: var(--gold); height: 100vh; padding: 40px 20px; position: fixed; z-index: 100; }
         .sidebar h2 { font-family: 'Playfair Display', serif; letter-spacing: 5px; text-align: center; border-bottom: 1px solid rgba(201,168,76,0.1); padding-bottom: 20px; margin-bottom: 30px; }
         .nav-link { display: block; padding: 15px; color: var(--gold); text-decoration: none; font-weight: 600; margin-bottom: 10px; cursor: pointer; border-radius: 8px; transition: 0.3s; }
         .nav-link:hover, .nav-link.active { background: var(--gold); color: var(--maroon); }
@@ -23,22 +24,28 @@
         .card { background: var(--white); padding: 40px; border-radius: 12px; box-shadow: 0 5px 30px rgba(0,0,0,0.03); margin-bottom: 20px; }
         h1 { font-family: 'Playfair Display', serif; margin-bottom: 30px; color: var(--maroon); }
 
-        label { display: block; margin-top: 20px; font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; color: #555; }
-        input, textarea { width: 100%; padding: 16px; margin: 8px 0; border: 1px solid #e1e1e1; border-radius: 8px; font-size: 15px; background: #fafafa; box-sizing: border-box; }
+        label { display: block; margin-top: 20px; font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #888; }
+        input, textarea { width: 100%; padding: 16px; margin: 8px 0; border: 1px solid #e1e1e1; border-radius: 8px; font-size: 15px; background: #fafafa; box-sizing: border-box; outline: none; transition: 0.3s; }
+        input:focus { border-color: var(--gold); background: #fff; }
         
-        .btn-save { background: var(--maroon); color: var(--gold); padding: 20px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; text-transform: uppercase; letter-spacing: 2px; }
+        .btn-save { background: var(--maroon); color: var(--gold); padding: 20px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; text-transform: uppercase; letter-spacing: 2px; transition: 0.3s; }
+        .btn-save:hover { filter: brightness(1.3); }
 
-        /* Grade de Fotos (Upload Direto) */
+        /* Grade de Fotos Inteligente */
         .photo-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 15px; margin-top: 10px; height: 250px; }
-        .photo-slot { background: #f0f0f0; border: 2px dashed #ccc; border-radius: 12px; display: flex; justify-content: center; align-items: center; cursor: pointer; position: relative; overflow: hidden; color: #888; font-size: 11px; font-weight: bold; }
+        .photo-slot { background: #f0f0f0; border: 2px dashed #ccc; border-radius: 12px; display: flex; justify-content: center; align-items: center; cursor: pointer; position: relative; overflow: hidden; color: #aaa; font-size: 12px; font-weight: bold; text-align: center; }
         .photo-slot.has-image { border: none; }
         .photo-slot img { width: 100%; height: 100%; object-fit: cover; position: absolute; }
 
-        .btn-del { background: #ffeded; color: #ff4444; border: none; padding: 8px 15px; border-radius: 6px; cursor: pointer; font-weight: bold; }
-        
+        /* Tabela de Estoque */
+        table { width: 100%; border-collapse: collapse; }
+        td { padding: 15px; border-bottom: 1px solid #eee; }
+        .img-mini { width: 60px; height: 60px; border-radius: 8px; object-fit: cover; }
+        .btn-del { background: #fff0f0; color: #ff4444; border: none; padding: 10px; border-radius: 6px; cursor: pointer; font-weight: bold; }
+
         @media (max-width: 768px) {
             body { flex-direction: column; }
-            .sidebar { width: 100%; height: auto; position: relative; }
+            .sidebar { width: 100%; height: auto; position: relative; padding: 20px; box-sizing: border-box; }
             .main { margin-left: 0; padding: 20px; }
             .photo-grid { height: auto; grid-template-columns: 1fr 1fr; grid-auto-rows: 150px; }
         }
@@ -57,41 +64,50 @@
 
     <div class="main">
         <div id="sec-novo" class="section active">
-            <h1>Criar Novo Produto</h1>
+            <h1>Cadastrar Peça</h1>
             <div class="card">
-                <label>Galeria (Clique para abrir câmera/galeria)</label>
+                <label>Fotos do Produto (Toque para abrir galeria/câmera)</label>
                 <div class="photo-grid">
-                    <div class="photo-slot" id="slot-0" onclick="document.getElementById('file-0').click()">
-                        <input type="file" id="file-0" accept="image/*" style="display:none" onchange="carregarFoto(event, 0)">+ Capa
+                    <div class="photo-slot" id="slot-0" onclick="document.getElementById('f0').click()">
+                        <input type="file" id="f0" accept="image/*" style="display:none" onchange="preview(this, 0)">+ Capa
                     </div>
-                    <div class="photo-slot" id="slot-1" onclick="document.getElementById('file-1').click()">
-                        <input type="file" id="file-1" accept="image/*" style="display:none" onchange="carregarFoto(event, 1)">+ Foto 2
+                    <div class="photo-slot" id="slot-1" onclick="document.getElementById('f1').click()">
+                        <input type="file" id="f1" accept="image/*" style="display:none" onchange="preview(this, 1)">+ Foto 2
                     </div>
-                    <div class="photo-slot" id="slot-2" onclick="document.getElementById('file-2').click()">
-                        <input type="file" id="file-2" accept="image/*" style="display:none" onchange="carregarFoto(event, 2)">+ Foto 3
+                    <div class="photo-slot" id="slot-2" onclick="document.getElementById('f2').click()">
+                        <input type="file" id="f2" accept="image/*" style="display:none" onchange="preview(this, 2)">+ Foto 3
                     </div>
-                    <div class="photo-slot" id="slot-3" onclick="document.getElementById('file-3').click()">
-                        <input type="file" id="file-3" accept="image/*" style="display:none" onchange="carregarFoto(event, 3)">+ Foto 4
+                    <div class="photo-slot" id="slot-3" onclick="document.getElementById('f3').click()">
+                        <input type="file" id="f3" accept="image/*" style="display:none" onchange="preview(this, 3)">+ Foto 4
                     </div>
                 </div>
-                <input type="text" id="nnome" placeholder="Nome">
-                <input type="number" id="npreco" placeholder="Preço">
-                <input type="text" id="ncategoria" placeholder="Categoria">
-                <textarea id="ndesc" rows="3" placeholder="Descrição"></textarea>
-                <button class="btn-save" id="btn-pub" onclick="salvarNovo()">PUBLICAR</button>
+
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                    <div><label>Nome do Produto</label><input type="text" id="nnome" placeholder="Ex: Camiseta Zeus Black"></div>
+                    <div><label>Preço (R$)</label><input type="number" id="npreco" placeholder="129.90"></div>
+                </div>
+                <label>Categoria</label><input type="text" id="ncategoria" placeholder="Ex: OVERSIZED">
+                <label>Descrição Detalhada</label><textarea id="ndesc" rows="3" placeholder="Tamanhos, tecido, etc."></textarea>
+                
+                <button class="btn-save" id="btn-pub" onclick="salvarNovo()">PUBLICAR NO CATÁLOGO</button>
             </div>
         </div>
 
         <div id="sec-estoque" class="section">
-            <h1>Estoque</h1>
-            <div class="card"><table style="width:100%"><tbody id="lista-estoque"></tbody></table></div>
+            <h1>Meu Estoque</h1>
+            <div class="card" style="padding: 20px;">
+                <table id="tabela-estoque">
+                    <tbody id="lista-estoque"></tbody>
+                </table>
+            </div>
         </div>
 
         <div id="sec-config" class="section">
-            <h1>WhatsApp</h1>
+            <h1>Configurações</h1>
             <div class="card">
-                <input type="text" id="wa-num" placeholder="5583...">
-                <button class="btn-save" onclick="salvarWA()">SALVAR</button>
+                <label>Número do WhatsApp (Com DDD)</label>
+                <input type="text" id="wa-num" placeholder="5583987005738">
+                <button class="btn-save" onclick="salvarWA()">ATUALIZAR CONTATO</button>
             </div>
         </div>
     </div>
@@ -99,86 +115,102 @@
     <script>
         const _supabase = supabase.createClient('https://fxmoxqvtamsxqpabbade.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ4moxqvtamsxqpabbadeiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM0Njc3NTgsImV4cCI6MjA4OTA0Mzc1OH0.H2mn5rb2WChGw9yWMrdk3MpYIHH1N0hKZMeggOEiQBU');
 
-        // --- SEGURANÇA E TIMEOUT ---
         let timeoutRef;
+        let fotosBase64 = ["", "", "", ""];
 
-        async function check() {
-            const { data: { user } } = await _supabase.auth.getUser();
-            if (!user) {
-                window.location.href = "login.html"; // Joga para a login se não tiver logado
+        // --- SEGURANÇA ANTILOOP ---
+        async function checkAuth() {
+            const { data: { session } } = await _supabase.auth.getSession();
+            if (!session) {
+                // Tenta uma última vez antes de expulsar (evita erro de delay)
+                const { data: { user } } = await _supabase.auth.getUser();
+                if(!user) {
+                    window.location.replace("login.html");
+                } else {
+                    liberarPainel();
+                }
             } else {
-                document.body.style.opacity = "1"; // Mostra o site se estiver ok
-                resetTimer();
+                liberarPainel();
             }
+        }
+
+        function liberarPainel() {
+            document.body.style.opacity = "1";
+            resetTimer();
         }
 
         function resetTimer() {
             clearTimeout(timeoutRef);
-            // 15 minutos de inatividade e desloga
-            timeoutRef = setTimeout(logout, 900000); 
+            timeoutRef = setTimeout(logout, 900000); // 15 min de inatividade
         }
 
         async function logout() {
             await _supabase.auth.signOut();
-            window.location.href = "login.html";
+            window.location.replace("login.html");
         }
 
-        document.addEventListener('mousemove', resetTimer);
-        document.addEventListener('keypress', resetTimer);
-        check();
-
         // --- FUNCIONALIDADES ---
-        let fotos = ["", "", "", ""];
         function show(id) {
             document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
             document.getElementById('sec-'+id).classList.add('active');
         }
 
-        function carregarFoto(event, index) {
-            const file = event.target.files[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                fotos[index] = e.target.result;
-                const slot = document.getElementById('slot-'+index);
-                slot.innerHTML = `<img src="${e.target.result}">`;
-                slot.classList.add('has-image');
-            };
-            reader.readAsDataURL(file);
+        function preview(input, index) {
+            const file = input.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    fotosBase64[index] = e.target.result;
+                    const slot = document.getElementById('slot-'+index);
+                    slot.innerHTML = `<img src="${e.target.result}">`;
+                    slot.classList.add('has-image');
+                };
+                reader.readAsDataURL(file);
+            }
         }
 
         async function salvarNovo() {
-            if(!fotos[0]) return alert("Capa é obrigatória!");
+            if(!fotosBase64[0]) return alert("A foto de capa é obrigatória!");
             const btn = document.getElementById('btn-pub');
-            btn.innerText = "ENVIANDO...";
-            
-            const extras = fotos.slice(1).filter(f => f !== "").join(',');
+            btn.innerText = "ENVIANDO PEÇA...";
+            btn.disabled = true;
+
+            const extras = fotosBase64.slice(1).filter(f => f !== "").join(',');
+
             const { error } = await _supabase.from('Produtos').insert([{
                 nome: document.getElementById('nnome').value,
                 preco: parseFloat(document.getElementById('npreco').value),
                 categoria: document.getElementById('ncategoria').value.toUpperCase(),
-                imagem_url: fotos[0],
+                imagem_url: fotosBase64[0],
                 fotos_extras: extras,
-                descricao: document.getElementById('ndesc').value
+                descricao: document.getElementById('ndesc').value,
+                esgotado: false
             }]);
-            
-            if(!error) location.reload();
-            else { alert("Erro ao salvar"); btn.innerText = "PUBLICAR"; }
+
+            if(!error) {
+                alert("Produto ZEUS publicado!");
+                location.reload();
+            } else {
+                alert("Erro ao salvar.");
+                btn.innerText = "PUBLICAR NO CATÁLOGO";
+                btn.disabled = false;
+            }
         }
 
         async function listar() {
             const { data } = await _supabase.from('Produtos').select('*').order('id', { ascending: false });
             document.getElementById('lista-estoque').innerHTML = data.map(p => `
                 <tr>
-                    <td><img src="${p.imagem_url}" style="width:60px; height:60px; object-fit:cover; border-radius:8px"></td>
-                    <td style="padding:10px"><b>${p.nome}</b></td>
+                    <td><img src="${p.imagem_url}" class="img-mini"></td>
+                    <td><b>${p.nome}</b><br><small>${p.categoria}</small></td>
                     <td><button class="btn-del" onclick="excluir(${p.id})">APAGAR</button></td>
                 </tr>
             `).join('');
         }
 
         async function excluir(id) {
-            if(confirm("Apagar da ZEUS?")) {
+            if(confirm("Deseja remover este produto da ZEUS?")) {
                 await _supabase.from('Produtos').delete().eq('id', id);
                 listar();
             }
@@ -187,13 +219,18 @@
         async function salvarWA() {
             const num = document.getElementById('wa-num').value.replace(/\D/g, '');
             await _supabase.from('Configuracoes').update({ whaatsapp: num }).eq('id', 1);
-            alert("WhatsApp Salvo!");
+            alert("WhatsApp Atualizado!");
         }
 
         async function carregarWA() {
             const { data } = await _supabase.from('Configuracoes').select('whaatsapp').eq('id', 1).single();
             if(data) document.getElementById('wa-num').value = data.whaatsapp;
         }
+
+        // Eventos e Início
+        document.addEventListener('mousemove', resetTimer);
+        document.addEventListener('keypress', resetTimer);
+        checkAuth();
         carregarWA();
     </script>
 </body>
