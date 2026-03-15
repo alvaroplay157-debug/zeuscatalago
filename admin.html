@@ -8,25 +8,19 @@
     <style>
         :root { --maroon: #1a0004; --gold: #C9A84C; --cream: #F5F0E8; }
         body { background: var(--cream); font-family: 'Segoe UI', sans-serif; margin: 0; display: flex; }
-        
         .sidebar { width: 260px; background: var(--maroon); color: var(--gold); height: 100vh; padding: 30px; position: fixed; box-sizing: border-box; }
-        .sidebar h2 { letter-spacing: 5px; text-align: center; border-bottom: 1px solid #3d0009; padding-bottom: 20px; margin-bottom: 30px; }
         .nav-link { display: block; padding: 15px; color: var(--gold); text-decoration: none; font-weight: bold; margin-bottom: 5px; cursor: pointer; border-radius: 4px; }
         .nav-link:hover, .nav-link.active { background: var(--gold); color: var(--maroon); }
-
         .main { margin-left: 260px; flex: 1; padding: 40px; }
         .section { display: none; }
         .section.active { display: block; }
-
         .card { background: white; padding: 25px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
         input, textarea, select { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box; }
         button.btn-main { background: var(--maroon); color: var(--gold); padding: 15px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; width: 100%; text-transform: uppercase; }
-        
-        table { width: 100%; border-collapse: collapse; background: white; margin-top: 20px; }
+        table { width: 100%; border-collapse: collapse; background: white; }
         th { background: var(--maroon); color: var(--gold); padding: 12px; text-align: left; }
         td { padding: 12px; border-bottom: 1px solid #eee; }
         .thumb { width: 45px; height: 45px; object-fit: cover; border-radius: 4px; }
-        .btn-acao { padding: 5px 10px; cursor: pointer; border-radius: 4px; border: none; font-size: 11px; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -42,52 +36,29 @@
 
     <div class="main">
         <div id="sec-novo" class="section active">
-            <h1>Cadastrar Produto</h1>
+            <h1>Adicionar Peça</h1>
             <div class="card">
-                <input type="text" id="nnome" placeholder="Nome do Produto">
-                <input type="number" id="npreco" step="0.01" placeholder="Preço (ex: 149.90)">
-                <input type="text" id="ncategoria" placeholder="Categoria (ex: CAMISETAS)">
-                <label>Foto de Capa:</label>
-                <input type="file" id="nfile" accept="image/*">
-                <textarea id="ndesc" placeholder="Descrição curta do produto"></textarea>
-                <button class="btn-main" onclick="salvarNovo()">Publicar na Loja</button>
+                <input type="text" id="nnome" placeholder="Nome">
+                <input type="number" id="npreco" step="0.01" placeholder="Preço">
+                <input type="text" id="ncategoria" placeholder="Categoria">
+                <label>Foto:</label><input type="file" id="nfile">
+                <textarea id="ndesc" placeholder="Descrição"></textarea>
+                <button class="btn-main" onclick="salvarNovo()">Publicar</button>
             </div>
         </div>
 
         <div id="sec-editar" class="section">
-            <h1>Gerenciar Estoque</h1>
+            <h1>Estoque</h1>
             <div class="card">
-                <table>
-                    <thead><tr><th>Foto</th><th>Nome</th><th>Status</th><th>Ações</th></tr></thead>
-                    <tbody id="lista-corpo"></tbody>
-                </table>
-            </div>
-        </div>
-
-        <div id="sec-form" class="section">
-            <h1>Editar Detalhes</h1>
-            <div class="card">
-                <input type="hidden" id="eid">
-                <input type="text" id="enome" placeholder="Nome">
-                <input type="number" id="epreco" step="0.01" placeholder="Preço">
-                <label>Disponibilidade:</label>
-                <select id="eesgotado">
-                    <option value="false">EM ESTOQUE</option>
-                    <option value="true">ESGOTADO</option>
-                </select>
-                <textarea id="edesc" placeholder="Descrição"></textarea>
-                <button class="btn-main" onclick="atualizar()">Salvar Alterações</button>
-                <button style="background:none; border:none; color:#888; margin-top:10px; cursor:pointer;" onclick="show('editar')">Cancelar</button>
+                <table id="lista-corpo"></table>
             </div>
         </div>
 
         <div id="sec-config" class="section">
-            <h1>Configurar Contato</h1>
-            <div class="card" style="max-width: 500px;">
-                <label>Número do WhatsApp (Com DDD, apenas números):</label>
+            <h1>WhatsApp da Loja</h1>
+            <div class="card">
                 <input type="text" id="wa-num" placeholder="55839XXXXXXXX">
-                <p style="font-size: 11px; color: #666;">Número atual salvo: <span id="wa-atual" style="font-weight:bold;">...</span></p>
-                <button class="btn-main" onclick="salvarWA()">Atualizar WhatsApp</button>
+                <button class="btn-main" onclick="salvarWA()">Salvar Número</button>
             </div>
         </div>
     </div>
@@ -99,77 +70,30 @@
             document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
             document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
             document.getElementById('sec-'+id).classList.add('active');
-            // Ativa o link na sidebar
-            const links = document.querySelectorAll('.nav-link');
-            links.forEach(link => { if(link.innerText.includes(id.toUpperCase())) link.classList.add('active'); });
         }
 
         async function listar() {
             const { data } = await _supabase.from('Produtos').select('*').order('id', { ascending: false });
-            const corpo = document.getElementById('lista-corpo');
-            corpo.innerHTML = data.map(p => `
+            document.getElementById('lista-corpo').innerHTML = data.map(p => `
                 <tr>
                     <td><img src="${p.imagem_url}" class="thumb"></td>
                     <td>${p.nome}</td>
-                    <td style="color:${p.esgotado?'red':'green'}"><strong>${p.esgotado?'ESGOTADO':'ATIVO'}</strong></td>
-                    <td>
-                        <button class="btn-acao" style="background:var(--gold)" onclick="abrirEdicao(${JSON.stringify(p).replace(/"/g, '&quot;')})">EDITAR</button>
-                        <button class="btn-acao" style="background:#ff4444; color:white" onclick="excluir(${p.id})">EXCLUIR</button>
-                    </td>
+                    <td><button onclick="excluir(${p.id})">Excluir</button></td>
                 </tr>
             `).join('');
         }
 
-        function abrirEdicao(p) {
-            show('form');
-            document.getElementById('eid').value = p.id;
-            document.getElementById('enome').value = p.nome;
-            document.getElementById('epreco').value = p.preco;
-            document.getElementById('edesc').value = p.descricao || '';
-            document.getElementById('eesgotado').value = p.esgotado.toString();
-        }
-
-        async function atualizar() {
-            const { error } = await _supabase.from('Produtos').update({
-                nome: document.getElementById('enome').value,
-                preco: parseFloat(document.getElementById('epreco').value),
-                descricao: document.getElementById('edesc').value,
-                esgotado: document.getElementById('eesgotado').value === 'true'
-            }).eq('id', document.getElementById('eid').value);
-            
-            if(!error) { alert("Produto atualizado com sucesso!"); show('editar'); listar(); }
-            else { alert("Erro ao atualizar."); }
-        }
-
-        async function excluir(id) {
-            if(confirm("Deseja realmente apagar este produto da loja?")) {
-                const { error } = await _supabase.from('Produtos').delete().eq('id', id);
-                if(!error) listar();
-            }
-        }
-
-        // Lógica de WhatsApp alinhada com seus prints
         async function salvarWA() {
             const num = document.getElementById('wa-num').value.replace(/\D/g, '');
             const { error } = await _supabase.from('Configuracoes').update({ whaatsapp: num }).eq('id', 1);
-            
-            if(!error) {
-                alert("WhatsApp atualizado!");
-                carregarWA();
-            } else {
-                alert("Erro ao salvar no banco. Verifique se o ID 1 existe.");
-            }
+            if(!error) alert("WhatsApp Atualizado!");
         }
 
         async function carregarWA() {
             const { data } = await _supabase.from('Configuracoes').select('whaatsapp').eq('id', 1).single();
-            if(data) {
-                document.getElementById('wa-num').value = data.whaatsapp;
-                document.getElementById('wa-atual').innerText = data.whaatsapp;
-            }
+            if(data) document.getElementById('wa-num').value = data.whaatsapp;
         }
 
-        // Inicia carregando o número atual
         carregarWA();
     </script>
 </body>
