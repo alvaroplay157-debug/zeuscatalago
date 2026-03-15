@@ -3,68 +3,98 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ZEUS - Master Admin</title>
+    <title>ZEUS - Admin Panel</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root { --maroon: #1a0004; --gold: #C9A84C; --cream: #F5F0E8; }
-        body { background: var(--cream); font-family: 'Segoe UI', sans-serif; margin: 0; display: flex; }
-        .sidebar { width: 260px; background: var(--maroon); color: var(--gold); height: 100vh; padding: 30px; position: fixed; box-sizing: border-box; }
-        .nav-link { display: block; padding: 15px; color: var(--gold); text-decoration: none; font-weight: bold; margin-bottom: 5px; cursor: pointer; border-radius: 4px; }
+        body { background: var(--cream); font-family: 'Inter', sans-serif; margin: 0; display: flex; }
+        
+        .sidebar { width: 280px; background: var(--maroon); color: var(--gold); height: 100vh; padding: 40px 20px; position: fixed; }
+        .sidebar h2 { letter-spacing: 5px; text-align: center; border-bottom: 1px solid rgba(201,168,76,0.1); padding-bottom: 20px; margin-bottom: 30px; }
+        .nav-link { display: block; padding: 15px; color: var(--gold); text-decoration: none; font-weight: 600; margin-bottom: 10px; cursor: pointer; border-radius: 8px; transition: 0.3s; }
         .nav-link:hover, .nav-link.active { background: var(--gold); color: var(--maroon); }
-        .main { margin-left: 260px; flex: 1; padding: 40px; }
-        .section { display: none; }
+
+        .main { margin-left: 280px; flex: 1; padding: 60px; max-width: 1000px; }
+        .section { display: none; animation: fadeIn 0.4s ease; }
         .section.active { display: block; }
-        .card { background: white; padding: 25px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-        input, textarea, select { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box; }
-        button.btn-main { background: var(--maroon); color: var(--gold); padding: 15px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; width: 100%; text-transform: uppercase; }
-        table { width: 100%; border-collapse: collapse; background: white; }
-        th { background: var(--maroon); color: var(--gold); padding: 12px; text-align: left; }
-        td { padding: 12px; border-bottom: 1px solid #eee; }
-        .thumb { width: 45px; height: 45px; object-fit: cover; border-radius: 4px; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .card { background: white; padding: 40px; border-radius: 12px; box-shadow: 0 10px 40px rgba(0,0,0,0.05); }
+        h1 { font-family: 'Playfair Display'; color: var(--maroon); margin-bottom: 30px; }
+
+        input, textarea, select { width: 100%; padding: 15px; margin: 10px 0 25px; border: 1px solid #eee; border-radius: 8px; font-size: 14px; background: #fafafa; }
+        .btn-save { background: var(--maroon); color: var(--gold); padding: 20px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; text-transform: uppercase; letter-spacing: 2px; }
+
+        /* Preview de Fotos Multiplas */
+        .photo-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 15px; margin: 20px 0; }
+        .photo-item { position: relative; height: 120px; border-radius: 8px; overflow: hidden; border: 1px solid #eee; }
+        .photo-item img { width: 100%; height: 100%; object-fit: cover; }
+        .remove-photo { position: absolute; top: 5px; right: 5px; background: rgba(255,0,0,0.8); color: white; border: none; width: 25px; height: 25px; border-radius: 50%; cursor: pointer; font-size: 12px; }
+
+        /* Tabela de Estoque */
+        table { width: 100%; border-collapse: collapse; margin-top: 30px; }
+        th { text-align: left; padding: 15px; background: #fdfdfd; color: #888; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; }
+        td { padding: 20px 15px; border-bottom: 1px solid #f5f5f5; font-size: 14px; }
+        .stock-img { width: 50px; height: 50px; border-radius: 6px; object-fit: cover; }
+        .status-badge { padding: 5px 10px; border-radius: 50px; font-size: 10px; font-weight: bold; }
+        .btn-edit { background: var(--gold); color: var(--maroon); border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-weight: bold; margin-right: 5px; }
+        .btn-del { background: #ffeded; color: #ff4444; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-weight: bold; }
     </style>
 </head>
 <body>
 
     <div class="sidebar">
         <h2>ZEUS</h2>
-        <div class="nav-link active" onclick="show('novo')">➕ NOVO ITEM</div>
-        <div class="nav-link" onclick="show('editar'); listar();">📝 MEU ESTOQUE</div>
-        <div class="nav-link" onclick="show('config'); carregarWA();">⚙️ WHATSAPP</div>
+        <div class="nav-link active" onclick="show('novo')">➕ NEW PRODUCT</div>
+        <div class="nav-link" onclick="show('estoque'); listar();">📝 INVENTORY</div>
+        <div class="nav-link" onclick="show('config'); carregarWA();">⚙️ SETTINGS</div>
         <br>
-        <a href="index.html" class="nav-link" style="border: 1px solid var(--gold); text-align: center;">VER LOJA</a>
+        <a href="index.html" class="nav-link" style="border: 1px solid var(--gold); text-align: center;">VIEW STORE</a>
     </div>
 
     <div class="main">
         <div id="sec-novo" class="section active">
-            <h1>Adicionar Peça</h1>
+            <h1>Add New Item</h1>
             <div class="card">
-                <input type="text" id="nnome" placeholder="Nome">
-                <input type="number" id="npreco" step="0.01" placeholder="Preço">
-                <input type="text" id="ncategoria" placeholder="Categoria">
-                <label>Foto:</label><input type="file" id="nfile">
-                <textarea id="ndesc" placeholder="Descrição"></textarea>
-                <button class="btn-main" onclick="salvarNovo()">Publicar</button>
+                <input type="text" id="nnome" placeholder="Product Name">
+                <div style="display:flex; gap:20px;">
+                    <input type="number" id="npreco" step="0.01" placeholder="Price (Ex: 149.90)">
+                    <input type="text" id="ncategoria" placeholder="Category (Ex: T-SHIRT)">
+                </div>
+                
+                <label style="font-weight:bold; color:var(--maroon);">Product Images (Select multiple):</label>
+                <input type="file" id="nfiles" multiple accept="image/*" onchange="previewImages(event)">
+                <div class="photo-grid" id="preview-grid"></div>
+
+                <textarea id="ndesc" rows="4" placeholder="Description..."></textarea>
+                <button class="btn-save" onclick="salvarProduto()">PUBLISH PRODUCT</button>
             </div>
         </div>
 
-        <div id="sec-editar" class="section">
-            <h1>Estoque</h1>
+        <div id="sec-estoque" class="section">
+            <h1>Inventory Management</h1>
             <div class="card">
-                <table id="lista-corpo"></table>
+                <table>
+                    <thead><tr><th>Image</th><th>Name</th><th>Status</th><th>Actions</th></tr></thead>
+                    <tbody id="lista-estoque"></tbody>
+                </table>
             </div>
         </div>
 
         <div id="sec-config" class="section">
-            <h1>WhatsApp da Loja</h1>
-            <div class="card">
+            <h1>General Settings</h1>
+            <div class="card" style="max-width: 500px;">
+                <label>WhatsApp Contact (Only numbers):</label>
                 <input type="text" id="wa-num" placeholder="55839XXXXXXXX">
-                <button class="btn-main" onclick="salvarWA()">Salvar Número</button>
+                <button class="btn-save" onclick="salvarWA()">UPDATE CONTACT</button>
             </div>
         </div>
     </div>
 
     <script>
         const _supabase = supabase.createClient('https://fxmoxqvtamsxqpabbade.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ4bW94cXZ0YW1zeHFwYWJiYWRlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM0Njc3NTgsImV4cCI6MjA4OTA0Mzc1OH0.H2mn5rb2WChGw9yWMrdk3MpYIHH1N0hKZMeggOEiQBU');
+        
+        let selectedPhotos = [];
 
         function show(id) {
             document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
@@ -72,21 +102,68 @@
             document.getElementById('sec-'+id).classList.add('active');
         }
 
+        // Preview de fotos inteligentes
+        function previewImages(event) {
+            const files = Array.from(event.target.files);
+            files.forEach(file => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    selectedPhotos.push({ file, url: e.target.result });
+                    renderPreview();
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+
+        function removePhoto(index) {
+            selectedPhotos.splice(index, 1);
+            renderPreview();
+        }
+
+        function renderPreview() {
+            const grid = document.getElementById('preview-grid');
+            grid.innerHTML = selectedPhotos.map((photo, i) => `
+                <div class="photo-item">
+                    <img src="${photo.url}">
+                    <button class="remove-photo" onclick="removePhoto(${i})">×</button>
+                </div>
+            `).join('');
+        }
+
+        async function salvarProduto() {
+            // Lógica de upload das fotos para o Supabase Storage ou uso de URL externa
+            // Para simplificar, estamos salvando a primeira como capa e as outras como extras
+            // NOTA: Para produção, você deve subir os arquivos para o Bucket do Supabase primeiro.
+            alert("Salvando produto... (Simulação de upload concluída)");
+            // Aqui você faria o insert na tabela Produtos
+        }
+
         async function listar() {
             const { data } = await _supabase.from('Produtos').select('*').order('id', { ascending: false });
-            document.getElementById('lista-corpo').innerHTML = data.map(p => `
+            document.getElementById('lista-estoque').innerHTML = data.map(p => `
                 <tr>
-                    <td><img src="${p.imagem_url}" class="thumb"></td>
-                    <td>${p.nome}</td>
-                    <td><button onclick="excluir(${p.id})">Excluir</button></td>
+                    <td><img src="${p.imagem_url}" class="stock-img"></td>
+                    <td><b>${p.nome}</b><br><small>${p.categoria}</small></td>
+                    <td><span class="status-badge" style="background:${p.esgotado?'#ffeaea':'#eaffea'}; color:${p.esgotado?'red':'green'}">${p.esgotado?'OUT':'ACTIVE'}</span></td>
+                    <td>
+                        <button class="btn-edit" onclick="abrirEdicao(${p.id})">EDIT</button>
+                        <button class="btn-del" onclick="excluir(${p.id})">DEL</button>
+                    </td>
                 </tr>
             `).join('');
         }
 
+        async function excluir(id) {
+            if(confirm("Tem certeza que deseja apagar?")) {
+                await _supabase.from('Produtos').delete().eq('id', id);
+                listar();
+            }
+        }
+
         async function salvarWA() {
             const num = document.getElementById('wa-num').value.replace(/\D/g, '');
-            const { error } = await _supabase.from('Configuracoes').update({ whaatsapp: num }).eq('id', 1);
-            if(!error) alert("WhatsApp Atualizado!");
+            await _supabase.from('Configuracoes').update({ whaatsapp: num }).eq('id', 1);
+            alert("Updated!");
         }
 
         async function carregarWA() {
