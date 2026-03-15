@@ -5,224 +5,60 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>ZEUS — Urban Luxury</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Inter:wght@300;400;600&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@900&family=Inter:wght@300;400;600&display=swap" rel="stylesheet" />
   <style>
-    :root {
-      --maroon-dark: #1a0004;
-      --maroon-velvet: #3D0009;
-      --maroon-light: #4d000b;
-      --gold: #C9A84C;
-      --cream: #F5F0E8;
-      --whatsapp: #25D366;
-    }
+    :root { --maroon: #1a0004; --gold: #C9A84C; --cream: #F5F0E8; }
+    body { font-family: 'Inter', sans-serif; background: var(--maroon); color: var(--cream); margin: 0; }
+    
+    header { height: 40vh; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; }
+    header h1 { font-family: 'Playfair Display', serif; font-size: 5rem; color: var(--gold); margin: 0; letter-spacing: 10px; }
 
-    body { 
-      font-family: 'Inter', sans-serif; 
-      background: radial-gradient(circle at center, var(--maroon-light) 0%, var(--maroon-velvet) 40%, var(--maroon-dark) 100%);
-      background-attachment: fixed;
-      color: var(--cream); 
-      margin: 0;
-      overflow-x: hidden; 
-    }
+    .filter-container { display: flex; justify-content: center; gap: 10px; margin-bottom: 40px; flex-wrap: wrap; }
+    .filter-btn { background: transparent; border: 1px solid var(--gold); color: var(--gold); padding: 8px 15px; cursor: pointer; text-transform: uppercase; font-size: 10px; transition: 0.3s; }
+    .filter-btn.active { background: var(--gold); color: var(--maroon); }
 
-    /* DECORAÇÃO DE FUNDO */
-    .bg-text {
-      position: fixed;
-      font-family: 'Playfair Display', serif;
-      font-size: 15vw;
-      color: rgba(201, 168, 76, 0.03);
-      z-index: -1;
-      user-select: none;
-      white-space: nowrap;
-      font-weight: 900;
-    }
-    .t1 { top: 10%; left: -5%; transform: rotate(-5deg); }
-    .t2 { bottom: 10%; right: -5%; transform: rotate(5deg); }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 30px; max-width: 1200px; margin: 0 auto; padding: 20px; }
+    
+    .product-card { background: rgba(255,255,255,0.05); position: relative; border-radius: 4px; overflow: hidden; }
+    .badge-esgotado { position: absolute; top: 10px; left: 10px; background: #ff4444; color: white; padding: 5px 10px; font-size: 10px; font-weight: bold; z-index: 5; }
+    
+    .img-container { width: 100%; height: 400px; position: relative; overflow: hidden; }
+    .img-container img { width: 100%; height: 100%; object-fit: cover; }
+    
+    .info { padding: 20px; text-align: center; }
+    .price { font-size: 1.2rem; font-weight: bold; display: block; margin: 10px 0; }
+    
+    .btn-share { position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.5); border: none; color: white; padding: 8px; border-radius: 50%; cursor: pointer; z-index: 5; }
+    
+    .bbuy { background: #25D366; color: white; padding: 12px; display: block; text-decoration: none; font-weight: bold; text-transform: uppercase; border-radius: 4px; font-size: 11px; }
+    .btn-medidas { background: transparent; border: 1px solid var(--gold); color: var(--gold); padding: 5px 10px; font-size: 9px; cursor: pointer; margin-bottom: 15px; }
 
-    header {
-      height: 50vh;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      text-align: center;
-    }
-
-    header h1 {
-      font-family: 'Playfair Display', serif;
-      font-size: clamp(4rem, 15vw, 8rem);
-      letter-spacing: 15px;
-      color: var(--gold);
-      margin: 0;
-    }
-
-    /* FILTROS */
-    .filter-container {
-      display: flex;
-      justify-content: center;
-      gap: 15px;
-      margin-bottom: 50px;
-      flex-wrap: wrap;
-      padding: 0 20px;
-    }
-
-    .filter-btn {
-      background: transparent;
-      border: 1px solid rgba(201, 168, 76, 0.3);
-      color: var(--gold);
-      padding: 10px 25px;
-      cursor: pointer;
-      font-size: 11px;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      transition: 0.3s;
-      border-radius: 2px;
-    }
-
-    .filter-btn:hover, .filter-btn.active {
-      background: var(--gold);
-      color: var(--maroon-dark);
-    }
-
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-      gap: 50px;
-      max-width: 1300px;
-      margin: 0 auto 100px;
-      padding: 0 25px;
-    }
-
-    .product-card {
-      background: rgba(0, 0, 0, 0.25);
-      border: 1px solid rgba(201, 168, 76, 0.1);
-      backdrop-filter: blur(10px);
-      border-radius: 4px;
-      overflow: hidden;
-      transition: 0.4s;
-      display: flex;
-      flex-direction: column;
-    }
-
-    .img-container {
-      width: 100%;
-      height: 450px;
-      overflow: hidden;
-    }
-
-    .img-container img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      transition: 1s;
-    }
-
-    .info {
-      padding: 25px;
-      text-align: center;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      flex-grow: 1;
-    }
-
-    .info h3 {
-      font-family: 'Playfair Display', serif;
-      font-size: 1.5rem;
-      color: var(--gold);
-      margin: 0 0 5px;
-    }
-
-    .description {
-      font-size: 0.85rem;
-      font-weight: 300;
-      font-style: italic;
-      color: var(--cream);
-      opacity: 0.7;
-      margin-bottom: 15px;
-      line-height: 1.4;
-    }
-
-    .price {
-      font-size: 1.2rem;
-      font-weight: 600;
-      margin-bottom: 20px;
-    }
-
-    .bbuy {
-      width: 100%;
-      max-width: 260px;
-      background: var(--whatsapp);
-      color: white;
-      padding: 16px;
-      font-weight: 900;
-      text-transform: uppercase;
-      letter-spacing: 2px;
-      font-size: 11px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-      text-decoration: none;
-      border-radius: 4px;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .whatsapp-float {
-      position: fixed;
-      bottom: 30px;
-      right: 30px;
-      width: 60px;
-      height: 60px;
-      z-index: 1000;
-    }
-
-    footer {
-      padding: 60px;
-      text-align: center;
-      background: rgba(0,0,0,0.3);
-    }
-
-    .admin-access {
-      display: inline-block;
-      margin-top: 20px;
-      color: rgba(201, 168, 76, 0.4);
-      text-decoration: none;
-      font-size: 10px;
-      letter-spacing: 3px;
-    }
+    /* Modal Simples */
+    #modalMedidas { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 1000; justify-content: center; align-items: center; }
   </style>
 </head>
 <body>
 
-  <div class="bg-text t1">LUXURY</div>
-  <div class="bg-text t2">URBAN</div>
-
   <header>
     <h1>ZEUS</h1>
-    <p style="letter-spacing: 5px; opacity: 0.6; font-size: 10px;">PREMIUM STREETWEAR</p>
+    <p style="letter-spacing: 5px; opacity: 0.6;">PATOS — PB</p>
   </header>
 
   <div class="filter-container">
     <button class="filter-btn active" onclick="filtrar('todos')">Todos</button>
     <button class="filter-btn" onclick="filtrar('Camisetas')">Camisetas</button>
     <button class="filter-btn" onclick="filtrar('Conjuntos')">Conjuntos</button>
-    <button class="filter-btn" onclick="filtrar('Acessórios')">Acessórios</button>
   </div>
 
-  <section class="catalog">
-    <div class="grid" id="grid"></div>
-  </section>
+  <div class="grid" id="grid"></div>
 
-  <a href="https://wa.me/5583987005738" class="whatsapp-float" target="_blank">
-    <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" alt="WhatsApp" style="width:100%">
-  </a>
-
-  <footer>
-    <p style="color: var(--gold); letter-spacing: 5px; margin: 0;">ZEUS STORE</p>
-    <a href="admin.html" class="admin-access">Acesso Restrito</a>
-  </footer>
+  <div id="modalMedidas" onclick="this.style.display='none'">
+    <div style="background: white; padding: 20px; border-radius: 8px; text-align: center;">
+        <h2 style="color: black;">Tabela de Medidas</h2>
+        <p style="color: #666;">P: 50cm x 70cm | M: 52cm x 72cm | G: 54cm x 74cm</p>
+        <button style="background: black; color: white; padding: 10px;">FECHAR</button>
+    </div>
+  </div>
 
   <script>
     const SUPABASE_URL = 'https://fxmoxqvtamsxqpabbade.supabase.co'; 
@@ -241,34 +77,48 @@
     function exibirProdutos(lista) {
       const grid = document.getElementById('grid');
       grid.innerHTML = '';
-      lista.forEach((p) => {
-        const desc = p.descricao || "";
+      lista.forEach(p => {
+        const badge = p.esgotado ? '<div class="badge-esgotado">ESGOTADO</div>' : '';
+        const botao = p.esgotado ? '<div class="bbuy" style="background:#444">Indisponível</div>' : `<a href="https://wa.me/55839XXXXXXXX?text=Salve Zeus! Quero a peça: ${p.nome}" class="bbuy" target="_blank">Pedir no WhatsApp</a>`;
+        
+        // Lógica simples para trocar foto ao passar o mouse (se houver foto extra)
+        const fotos = p.fotos_extras ? p.fotos_extras.split(',') : [];
+        const fotoSecundaria = fotos.length > 0 ? fotos[0].trim() : p.imagem_url;
+
         grid.innerHTML += `
           <div class="product-card">
-            <div class="img-container"><img src="${p.imagem_url}" loading="lazy"></div>
+            ${badge}
+            <button class="btn-share" onclick="compartilhar('${p.nome}')">📤</button>
+            <div class="img-container">
+              <img src="${p.imagem_url}" 
+                   onmouseover="this.src='${fotoSecundaria}'" 
+                   onmouseout="this.src='${p.imagem_url}'">
+            </div>
             <div class="info">
               <h3>${p.nome}</h3>
-              <p class="description">${desc}</p>
+              <p style="font-size: 12px; opacity: 0.7;">${p.descricao || ""}</p>
+              <button class="btn-medidas" onclick="document.getElementById('modalMedidas').style.display='flex'">Ver Medidas</button>
               <span class="price">R$ ${p.preco}</span>
-              <a href="https://wa.me/5583987005738?text=Salve Zeus! Quero essa peça: ${p.nome}" class="bbuy" target="_blank">
-                Pedir no WhatsApp
-              </a>
+              ${botao}
             </div>
           </div>
         `;
       });
     }
 
-    function filtrar(categoria) {
-      document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
-      event.target.classList.add('active');
-
-      if (categoria === 'todos') {
-        exibirProdutos(produtosGerais);
+    function compartilhar(nome) {
+      if (navigator.share) {
+        navigator.share({ title: 'ZEUS', text: 'Olha essa peça da ZEUS: ' + nome, url: window.location.href });
       } else {
-        const filtrados = produtosGerais.filter(p => p.categoria && p.categoria.toLowerCase() === categoria.toLowerCase());
-        exibirProdutos(filtrados);
+        alert("Link copiado!");
       }
+    }
+
+    function filtrar(cat) {
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      event.target.classList.add('active');
+      const f = cat === 'todos' ? produtosGerais : produtosGerais.filter(p => p.categoria === cat);
+      exibirProdutos(f);
     }
 
     carregar();
