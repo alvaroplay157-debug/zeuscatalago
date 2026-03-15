@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ZEUS - Painel de Controle</title>
+    <title>ZEUS - Admin Premium</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root { --maroon: #3D0009; --gold: #C9A84C; --cream: #F5F0E8; }
@@ -13,16 +13,17 @@
         .main { margin-left: 260px; flex: 1; padding: 40px; }
         .card { background: white; padding: 25px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); margin-bottom: 40px; }
         input, textarea { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box; }
+        .checkbox-group { display: flex; align-items: center; gap: 10px; margin: 15px 0; border: 1px solid #ddd; padding: 10px; border-radius: 4px; }
         button { background: var(--maroon); color: var(--gold); padding: 12px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; width: 100%; text-transform: uppercase; transition: 0.3s; }
         button:hover { background: #5C0A14; }
         .btn-voltar { color: var(--gold); text-decoration: none; font-weight: bold; display: block; margin-bottom: 20px; border: 1px solid var(--gold); padding: 10px; text-align: center; border-radius: 4px; font-size: 0.9rem; transition: 0.3s; }
-        .btn-voltar:hover { background: var(--gold); color: var(--maroon); }
         table { width: 100%; border-collapse: collapse; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
         th { background: var(--maroon); color: var(--gold); padding: 15px; text-align: left; }
         td { padding: 15px; border-bottom: 1px solid #eee; }
-        .btn-delete { background: #ff4444; color: white; padding: 8px 15px; border-radius: 4px; font-size: 0.7rem; width: auto; cursor: pointer; border: none; }
-        img.thumb { width: 50px; height: 50px; object-fit: cover; border-radius: 4px; background: #eee; }
-        #status-upload { font-size: 0.8rem; color: var(--maroon); margin-bottom: 10px; display: none; }
+        .badge-status { padding: 4px 8px; border-radius: 4px; font-size: 10px; font-weight: bold; }
+        .status-esgotado { background: #ffcccc; color: #cc0000; }
+        .status-ativo { background: #ccffcc; color: #006600; }
+        img.thumb { width: 50px; height: 50px; object-fit: cover; border-radius: 4px; }
     </style>
 </head>
 <body>
@@ -41,16 +42,20 @@
         <div class="card">
             <h3>Adicionar Nova Peça</h3>
             <input type="text" id="nome" placeholder="Nome da Peça">
-            <input type="text" id="categoria" placeholder="Categoria (Ex: Camiseta, Conjunto)">
-            
+            <input type="text" id="categoria" placeholder="Categoria (Camisetas, Conjuntos, Acessórios)">
             <input type="number" id="preco" step="0.01" placeholder="Preço (Ex: 149.90)">
             
-            <label style="font-size: 0.8rem; font-weight: bold;">Foto do Produto:</label>
+            <label style="font-size: 0.8rem; font-weight: bold;">Foto Principal (Upload):</label>
             <input type="file" id="arquivo-imagem" accept="image/*">
             
+            <input type="text" id="fotos_extras" placeholder="Links de fotos extras (separados por vírgula)">
             <textarea id="desc" placeholder="Descrição da peça"></textarea>
             
-            <p id="status-upload">Enviando imagem, aguarde...</p>
+            <div class="checkbox-group">
+                <input type="checkbox" id="esgotado" style="width: auto; margin: 0;">
+                <label for="esgotado" style="font-size: 0.9rem; color: var(--maroon); font-weight: bold;">MARCAR COMO ESGOTADO</label>
+            </div>
+
             <button id="btn-salvar" onclick="salvar()">Publicar Produto</button>
         </div>
 
@@ -60,7 +65,7 @@
                 <tr>
                     <th>Foto</th>
                     <th>Nome</th>
-                    <th>Preço</th>
+                    <th>Status</th>
                     <th>Ação</th>
                 </tr>
             </thead>
@@ -81,51 +86,38 @@
 
         async function salvar() {
             const nome = document.getElementById('nome').value;
-            const categoria = document.getElementById('categoria').value; // Pegando categoria
+            const categoria = document.getElementById('categoria').value;
             const preco = document.getElementById('preco').value;
             const descricao = document.getElementById('desc').value;
+            const fotos_extras = document.getElementById('fotos_extras').value;
+            const esgotado = document.getElementById('esgotado').checked;
             const arquivoInput = document.getElementById('arquivo-imagem');
             const arquivo = arquivoInput.files[0];
-            const status = document.getElementById('status-upload');
             const btn = document.getElementById('btn-salvar');
 
-            if (!nome || !categoria || !preco || !arquivo) return alert("Preencha Nome, Categoria, Preço e selecione uma Foto!");
+            if (!nome || !categoria || !preco || !arquivo) return alert("Preencha os campos obrigatórios!");
 
-            status.style.display = "block";
             btn.disabled = true;
             btn.innerText = "Processando...";
 
             try {
-                const extensao = arquivo.name.split('.').pop();
-                const nomeArquivo = `${Date.now()}.${extensao}`;
-                
-                // USANDO O NOME CORRETO DO BUCKET: fotos-produtos
-                const { data: uploadData, error: uploadError } = await _supabase.storage
-                    .from('fotos-produtos')
-                    .upload(nomeArquivo, arquivo);
-
+                const nomeArquivo = `${Date.now()}_${arquivo.name}`;
+                const { error: uploadError } = await _supabase.storage.from('fotos-produtos').upload(nomeArquivo, arquivo);
                 if (uploadError) throw uploadError;
 
-                const { data: linkPublico } = _supabase.storage
-                    .from('fotos-produtos')
-                    .getPublicUrl(nomeArquivo);
+                const { data: linkPublico } = _supabase.storage.from('fotos-produtos').getPublicUrl(nomeArquivo);
 
-                const imagem_url = linkPublico.publicUrl;
-
-                // INSERINDO COM A NOVA COLUNA CATEGORIA
                 const { error: dbError } = await _supabase.from('Produtos').insert([
-                    { nome, categoria, preco, imagem_url, descricao }
+                    { nome, categoria, preco, imagem_url: linkPublico.publicUrl, descricao, fotos_extras, esgotado }
                 ]);
 
                 if (dbError) throw dbError;
 
-                alert("Peça publicada com sucesso na ZEUS!");
+                alert("Sucesso!");
                 location.reload();
-
             } catch (err) {
                 alert("Erro: " + err.message);
             } finally {
-                status.style.display = "none";
                 btn.disabled = false;
                 btn.innerText = "Publicar Produto";
             }
@@ -134,26 +126,27 @@
         async function listarProdutos() {
             const { data, error } = await _supabase.from('Produtos').select('*').order('id', { ascending: false });
             const corpo = document.getElementById('tabela-corpo');
-            if (error) return console.error(error);
+            if (error) return;
 
             corpo.innerHTML = ''; 
             data.forEach(item => {
+                const statusClass = item.esgotado ? 'status-esgotado' : 'status-ativo';
+                const statusText = item.esgotado ? 'ESGOTADO' : 'ATIVO';
                 corpo.innerHTML += `
                     <tr>
-                        <td><img src="${item.imagem_url}" class="thumb" onerror="this.src='https://via.placeholder.com/50'"></td>
+                        <td><img src="${item.imagem_url}" class="thumb"></td>
                         <td>${item.nome}</td>
-                        <td>R$ ${item.preco}</td>
-                        <td><button class="btn-delete" onclick="excluir(${item.id})">REMOVER</button></td>
+                        <td><span class="badge-status ${statusClass}">${statusText}</span></td>
+                        <td><button style="background:#ff4444; width:auto; padding:5px 10px;" onclick="excluir(${item.id})">X</button></td>
                     </tr>
                 `;
             });
         }
 
         async function excluir(id) {
-            if (confirm("Deseja remover este item definitivamente?")) {
-                const { error } = await _supabase.from('Produtos').delete().eq('id', id);
-                if (error) alert("Erro: " + error.message);
-                else { alert("Item removido!"); location.reload(); }
+            if (confirm("Excluir item?")) {
+                await _supabase.from('Produtos').delete().eq('id', id);
+                location.reload();
             }
         }
 
