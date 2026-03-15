@@ -3,98 +3,152 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ZEUS - Admin Panel</title>
+    <title>ZEUS - Painel Administrativo</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
     <style>
-        :root { --maroon: #1a0004; --gold: #C9A84C; --cream: #F5F0E8; }
-        body { background: var(--cream); font-family: 'Inter', sans-serif; margin: 0; display: flex; }
+        :root { --maroon: #1a0004; --gold: #C9A84C; --cream: #F5F0E8; --white: #ffffff; }
+        body { background: var(--cream); font-family: 'Inter', sans-serif; margin: 0; display: flex; color: var(--maroon); }
         
-        .sidebar { width: 280px; background: var(--maroon); color: var(--gold); height: 100vh; padding: 40px 20px; position: fixed; }
-        .sidebar h2 { letter-spacing: 5px; text-align: center; border-bottom: 1px solid rgba(201,168,76,0.1); padding-bottom: 20px; margin-bottom: 30px; }
+        /* Sidebar */
+        .sidebar { width: 280px; background: var(--maroon); color: var(--gold); height: 100vh; padding: 40px 20px; position: fixed; box-sizing: border-box; }
+        .sidebar h2 { font-family: 'Playfair Display', serif; letter-spacing: 5px; text-align: center; border-bottom: 1px solid rgba(201,168,76,0.1); padding-bottom: 20px; margin-bottom: 30px; }
         .nav-link { display: block; padding: 15px; color: var(--gold); text-decoration: none; font-weight: 600; margin-bottom: 10px; cursor: pointer; border-radius: 8px; transition: 0.3s; }
         .nav-link:hover, .nav-link.active { background: var(--gold); color: var(--maroon); }
 
-        .main { margin-left: 280px; flex: 1; padding: 60px; max-width: 1000px; }
+        /* Main Content */
+        .main { margin-left: 280px; flex: 1; padding: 60px; max-width: 1100px; box-sizing: border-box; }
         .section { display: none; animation: fadeIn 0.4s ease; }
         .section.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        .card { background: white; padding: 40px; border-radius: 12px; box-shadow: 0 10px 40px rgba(0,0,0,0.05); }
-        h1 { font-family: 'Playfair Display'; color: var(--maroon); margin-bottom: 30px; }
+        .card { background: var(--white); padding: 40px; border-radius: 12px; box-shadow: 0 10px 40px rgba(0,0,0,0.05); }
+        h1 { font-family: 'Playfair Display', serif; margin-bottom: 30px; }
 
-        input, textarea, select { width: 100%; padding: 15px; margin: 10px 0 25px; border: 1px solid #eee; border-radius: 8px; font-size: 14px; background: #fafafa; }
-        .btn-save { background: var(--maroon); color: var(--gold); padding: 20px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; text-transform: uppercase; letter-spacing: 2px; }
+        label { display: block; margin-top: 15px; font-weight: 600; font-size: 13px; text-transform: uppercase; letter-spacing: 1px; }
+        input, textarea, select { width: 100%; padding: 15px; margin: 8px 0 20px; border: 1px solid #eee; border-radius: 8px; font-size: 14px; background: #fafafa; font-family: inherit; }
+        
+        .btn-save { background: var(--maroon); color: var(--gold); padding: 20px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; text-transform: uppercase; letter-spacing: 2px; transition: 0.3s; }
+        .btn-save:hover { filter: brightness(1.2); }
 
-        /* Preview de Fotos Multiplas */
+        /* Fotos */
         .photo-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 15px; margin: 20px 0; }
         .photo-item { position: relative; height: 120px; border-radius: 8px; overflow: hidden; border: 1px solid #eee; }
         .photo-item img { width: 100%; height: 100%; object-fit: cover; }
-        .remove-photo { position: absolute; top: 5px; right: 5px; background: rgba(255,0,0,0.8); color: white; border: none; width: 25px; height: 25px; border-radius: 50%; cursor: pointer; font-size: 12px; }
+        .remove-photo { position: absolute; top: 5px; right: 5px; background: #ff4444; color: white; border: none; width: 25px; height: 25px; border-radius: 50%; cursor: pointer; font-size: 14px; display: flex; justify-content: center; align-items: center; }
 
-        /* Tabela de Estoque */
-        table { width: 100%; border-collapse: collapse; margin-top: 30px; }
-        th { text-align: left; padding: 15px; background: #fdfdfd; color: #888; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; }
-        td { padding: 20px 15px; border-bottom: 1px solid #f5f5f5; font-size: 14px; }
-        .stock-img { width: 50px; height: 50px; border-radius: 6px; object-fit: cover; }
-        .status-badge { padding: 5px 10px; border-radius: 50px; font-size: 10px; font-weight: bold; }
-        .btn-edit { background: var(--gold); color: var(--maroon); border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-weight: bold; margin-right: 5px; }
-        .btn-del { background: #ffeded; color: #ff4444; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-weight: bold; }
+        /* Tabela */
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th { text-align: left; padding: 15px; background: #fdfdfd; color: #888; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; border-bottom: 2px solid #eee; }
+        td { padding: 15px; border-bottom: 1px solid #f5f5f5; font-size: 14px; }
+        .stock-img { width: 60px; height: 60px; border-radius: 8px; object-fit: cover; }
+        .btn-edit { background: var(--gold); color: var(--maroon); border: none; padding: 8px 15px; border-radius: 6px; cursor: pointer; font-weight: bold; margin-right: 5px; }
+        .btn-del { background: #ffeded; color: #ff4444; border: none; padding: 8px 15px; border-radius: 6px; cursor: pointer; font-weight: bold; }
+
+        /* Modal de Edição */
+        #modal-edit { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 1000; justify-content: center; align-items: center; backdrop-filter: blur(5px); }
+        .modal-content { background: white; padding: 40px; border-radius: 15px; width: 90%; max-width: 600px; max-height: 90vh; overflow-y: auto; }
     </style>
 </head>
 <body>
 
     <div class="sidebar">
         <h2>ZEUS</h2>
-        <div class="nav-link active" onclick="show('novo')">➕ NEW PRODUCT</div>
-        <div class="nav-link" onclick="show('estoque'); listar();">📝 INVENTORY</div>
-        <div class="nav-link" onclick="show('config'); carregarWA();">⚙️ SETTINGS</div>
+        <div class="nav-link active" onclick="show('novo')">➕ NOVO PRODUTO</div>
+        <div class="nav-link" onclick="show('estoque'); listar();">📝 MEU ESTOQUE</div>
+        <div class="nav-link" onclick="show('config'); carregarWA();">⚙️ CONFIGURAÇÕES</div>
         <br>
-        <a href="index.html" class="nav-link" style="border: 1px solid var(--gold); text-align: center;">VIEW STORE</a>
+        <a href="index.html" class="nav-link" style="border: 1px solid var(--gold); text-align: center;">VER LOJA</a>
     </div>
 
     <div class="main">
         <div id="sec-novo" class="section active">
-            <h1>Add New Item</h1>
+            <h1>Cadastrar Novo Item</h1>
             <div class="card">
-                <input type="text" id="nnome" placeholder="Product Name">
+                <label>Nome do Produto</label>
+                <input type="text" id="nnome" placeholder="Ex: Camiseta Zeus Oversized">
+                
                 <div style="display:flex; gap:20px;">
-                    <input type="number" id="npreco" step="0.01" placeholder="Price (Ex: 149.90)">
-                    <input type="text" id="ncategoria" placeholder="Category (Ex: T-SHIRT)">
+                    <div style="flex:1;">
+                        <label>Preço (R$)</label>
+                        <input type="number" id="npreco" step="0.01" placeholder="149.90">
+                    </div>
+                    <div style="flex:1;">
+                        <label>Categoria</label>
+                        <input type="text" id="ncategoria" placeholder="Ex: CAMISETAS">
+                    </div>
                 </div>
                 
-                <label style="font-weight:bold; color:var(--maroon);">Product Images (Select multiple):</label>
-                <input type="file" id="nfiles" multiple accept="image/*" onchange="previewImages(event)">
-                <div class="photo-grid" id="preview-grid"></div>
+                <label>Fotos (A primeira será a capa)</label>
+                <input type="text" id="nimg" placeholder="Link da imagem principal">
+                <textarea id="nextras" placeholder="Links das fotos extras (separados por vírgula)"></textarea>
 
-                <textarea id="ndesc" rows="4" placeholder="Description..."></textarea>
-                <button class="btn-save" onclick="salvarProduto()">PUBLISH PRODUCT</button>
+                <label>Descrição</label>
+                <textarea id="ndesc" rows="4" placeholder="Detalhes do produto..."></textarea>
+                
+                <button class="btn-save" onclick="salvarNovo()">PUBLICAR PRODUTO</button>
             </div>
         </div>
 
         <div id="sec-estoque" class="section">
-            <h1>Inventory Management</h1>
+            <h1>Gerenciamento de Estoque</h1>
             <div class="card">
                 <table>
-                    <thead><tr><th>Image</th><th>Name</th><th>Status</th><th>Actions</th></tr></thead>
+                    <thead>
+                        <tr>
+                            <th>Imagem</th>
+                            <th>Produto</th>
+                            <th>Status</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
                     <tbody id="lista-estoque"></tbody>
                 </table>
             </div>
         </div>
 
         <div id="sec-config" class="section">
-            <h1>General Settings</h1>
+            <h1>Configurações Gerais</h1>
             <div class="card" style="max-width: 500px;">
-                <label>WhatsApp Contact (Only numbers):</label>
+                <label>Número do WhatsApp (Com DDD, apenas números)</label>
                 <input type="text" id="wa-num" placeholder="55839XXXXXXXX">
-                <button class="btn-save" onclick="salvarWA()">UPDATE CONTACT</button>
+                <button class="btn-save" onclick="salvarWA()">ATUALIZAR CONTATO</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-edit">
+        <div class="modal-content">
+            <h2 style="font-family:'Playfair Display';">Editar Produto</h2>
+            <input type="hidden" id="edit-id">
+            
+            <label>Nome</label>
+            <input type="text" id="edit-nome">
+            
+            <label>Preço</label>
+            <input type="number" id="edit-preco" step="0.01">
+
+            <label>Status de Estoque</label>
+            <select id="edit-esgotado">
+                <option value="false">DISPONÍVEL</option>
+                <option value="true">ESGOTADO</option>
+            </select>
+
+            <label>Link da Imagem Principal</label>
+            <input type="text" id="edit-img">
+
+            <label>Fotos Extras (Links separados por vírgula)</label>
+            <textarea id="edit-extras"></textarea>
+
+            <div style="display:flex; gap:10px; margin-top:20px;">
+                <button class="btn-save" onclick="salvarEdicao()">SALVAR ALTERAÇÕES</button>
+                <button class="btn-del" style="background:#eee; color:#333; width:100%;" onclick="fecharModal()">CANCELAR</button>
             </div>
         </div>
     </div>
 
     <script>
         const _supabase = supabase.createClient('https://fxmoxqvtamsxqpabbade.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ4bW94cXZ0YW1zeHFwYWJiYWRlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM0Njc3NTgsImV4cCI6MjA4OTA0Mzc1OH0.H2mn5rb2WChGw9yWMrdk3MpYIHH1N0hKZMeggOEiQBU');
-        
-        let selectedPhotos = [];
 
         function show(id) {
             document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
@@ -102,40 +156,17 @@
             document.getElementById('sec-'+id).classList.add('active');
         }
 
-        // Preview de fotos inteligentes
-        function previewImages(event) {
-            const files = Array.from(event.target.files);
-            files.forEach(file => {
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    selectedPhotos.push({ file, url: e.target.result });
-                    renderPreview();
-                };
-                reader.readAsDataURL(file);
-            });
-        }
-
-        function removePhoto(index) {
-            selectedPhotos.splice(index, 1);
-            renderPreview();
-        }
-
-        function renderPreview() {
-            const grid = document.getElementById('preview-grid');
-            grid.innerHTML = selectedPhotos.map((photo, i) => `
-                <div class="photo-item">
-                    <img src="${photo.url}">
-                    <button class="remove-photo" onclick="removePhoto(${i})">×</button>
-                </div>
-            `).join('');
-        }
-
-        async function salvarProduto() {
-            // Lógica de upload das fotos para o Supabase Storage ou uso de URL externa
-            // Para simplificar, estamos salvando a primeira como capa e as outras como extras
-            // NOTA: Para produção, você deve subir os arquivos para o Bucket do Supabase primeiro.
-            alert("Salvando produto... (Simulação de upload concluída)");
-            // Aqui você faria o insert na tabela Produtos
+        async function salvarNovo() {
+            const { error } = await _supabase.from('Produtos').insert([{
+                nome: document.getElementById('nnome').value,
+                preco: parseFloat(document.getElementById('npreco').value),
+                categoria: document.getElementById('ncategoria').value.toUpperCase(),
+                imagem_url: document.getElementById('nimg').value,
+                fotos_extras: document.getElementById('nextras').value,
+                descricao: document.getElementById('ndesc').value,
+                esgotado: false
+            }]);
+            if(!error) { alert("Produto cadastrado!"); location.reload(); }
         }
 
         async function listar() {
@@ -144,17 +175,42 @@
                 <tr>
                     <td><img src="${p.imagem_url}" class="stock-img"></td>
                     <td><b>${p.nome}</b><br><small>${p.categoria}</small></td>
-                    <td><span class="status-badge" style="background:${p.esgotado?'#ffeaea':'#eaffea'}; color:${p.esgotado?'red':'green'}">${p.esgotado?'OUT':'ACTIVE'}</span></td>
+                    <td><b style="color:${p.esgotado?'red':'green'}">${p.esgotado?'ESGOTADO':'ATIVO'}</b></td>
                     <td>
-                        <button class="btn-edit" onclick="abrirEdicao(${p.id})">EDIT</button>
-                        <button class="btn-del" onclick="excluir(${p.id})">DEL</button>
+                        <button class="btn-edit" onclick='abrirEdicao(${JSON.stringify(p)})'>EDITAR</button>
+                        <button class="btn-del" onclick="excluir(${p.id})">APAGAR</button>
                     </td>
                 </tr>
             `).join('');
         }
 
+        function abrirEdicao(p) {
+            document.getElementById('modal-edit').style.display = 'flex';
+            document.getElementById('edit-id').value = p.id;
+            document.getElementById('edit-nome').value = p.nome;
+            document.getElementById('edit-preco').value = p.preco;
+            document.getElementById('edit-esgotado').value = p.esgotado.toString();
+            document.getElementById('edit-img').value = p.imagem_url;
+            document.getElementById('edit-extras').value = p.fotos_extras || '';
+        }
+
+        function fecharModal() { document.getElementById('modal-edit').style.display = 'none'; }
+
+        async function salvarEdicao() {
+            const id = document.getElementById('edit-id').value;
+            const { error } = await _supabase.from('Produtos').update({
+                nome: document.getElementById('edit-nome').value,
+                preco: parseFloat(document.getElementById('edit-preco').value),
+                esgotado: document.getElementById('edit-esgotado').value === 'true',
+                imagem_url: document.getElementById('edit-img').value,
+                fotos_extras: document.getElementById('edit-extras').value
+            }).eq('id', id);
+
+            if(!error) { alert("Atualizado com sucesso!"); fecharModal(); listar(); }
+        }
+
         async function excluir(id) {
-            if(confirm("Tem certeza que deseja apagar?")) {
+            if(confirm("Deseja apagar este item permanentemente?")) {
                 await _supabase.from('Produtos').delete().eq('id', id);
                 listar();
             }
@@ -163,7 +219,7 @@
         async function salvarWA() {
             const num = document.getElementById('wa-num').value.replace(/\D/g, '');
             await _supabase.from('Configuracoes').update({ whaatsapp: num }).eq('id', 1);
-            alert("Updated!");
+            alert("WhatsApp Atualizado!");
         }
 
         async function carregarWA() {
