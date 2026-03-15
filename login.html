@@ -5,121 +5,118 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ZEUS - Acesso Restrito</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
     <style>
-        /* ANIMAÇÃO DEFINIDA AQUI */
-        @keyframes subirEApparecer {
-            from {
-                opacity: 0;
-                transform: translateY(200px); /* Começa 50px abaixo */
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0); /* Termina no lugar original */
-            }
-        }
-
+        :root { --maroon: #1a0004; --gold: #C9A84C; --white: #ffffff; }
         body { 
-            background: #3D0009; 
-            color: #C9A84C; 
-            font-family: 'Arial', sans-serif; 
+            background: var(--maroon); 
+            font-family: 'Inter', sans-serif; 
+            margin: 0; 
+            height: 100vh; 
             display: flex; 
             justify-content: center; 
             align-items: center; 
-            height: 100vh; 
-            margin: 0; 
-            overflow: hidden; /* Evita barra de rolagem durante a animação */
+            color: var(--gold);
         }
-
         .login-card { 
-            background: #1a0004; 
+            background: rgba(255, 255, 255, 0.05); 
             padding: 40px; 
-            border-radius: 4px; 
-            border: 1px solid #C9A84C; 
-            width: 320px; 
-            text-align: center;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.7);
-            
-            /* APLICAÇÃO DA ANIMAÇÃO */
-            animation: subirEApparecer 1.2s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+            border-radius: 15px; 
+            border: 1px solid rgba(201, 168, 76, 0.2);
+            text-align: center; 
+            width: 90%; 
+            max-width: 380px; 
+            backdrop-filter: blur(10px);
         }
-
-        h2 { letter-spacing: 5px; text-transform: uppercase; margin-bottom: 30px; }
-        
+        h2 { 
+            font-family: 'Playfair Display', serif; 
+            letter-spacing: 5px; 
+            margin-bottom: 30px; 
+            font-size: 28px;
+        }
         input { 
             width: 100%; 
-            padding: 12px; 
-            margin: 10px 0; 
-            background: #3D0009; 
-            border: 1px solid #5C0A14; 
+            padding: 15px; 
+            margin-bottom: 15px; 
+            border-radius: 8px; 
+            border: 1px solid rgba(201, 168, 76, 0.3); 
+            background: rgba(0,0,0,0.2); 
             color: white; 
-            border-radius: 2px; 
-            box-sizing: border-box; 
+            box-sizing: border-box;
             outline: none;
         }
-
-        input:focus { border-color: #C9A84C; }
-
-        button { 
+        input:focus { border-color: var(--gold); }
+        .btn-login { 
+            background: var(--gold); 
+            color: var(--maroon); 
             width: 100%; 
-            padding: 12px; 
-            background: #C9A84C; 
-            color: #3D0009; 
+            padding: 15px; 
             border: none; 
+            border-radius: 8px; 
             font-weight: bold; 
+            text-transform: uppercase; 
+            letter-spacing: 2px; 
             cursor: pointer; 
-            text-transform: uppercase;
-            margin-top: 10px;
             transition: 0.3s;
         }
-
-        button:hover { background: #F5F0E8; transform: scale(1.02); }
-        #msg { color: #ff4444; font-size: 0.8rem; margin-top: 15px; }
+        .btn-login:hover { filter: brightness(1.2); transform: scale(1.02); }
+        .footer-link { margin-top: 20px; font-size: 12px; color: rgba(201, 168, 76, 0.6); text-decoration: none; display: block; }
     </style>
 </head>
 <body>
+
     <div class="login-card">
-        <h2 style="font-family: 'serif';">ZEUS</h2>
-        <p style="font-size: 0.7rem; letter-spacing: 2px; margin-bottom: 20px;">ADMINISTRAÇÃO</p>
-        <input type="email" id="email" placeholder="E-mail">
-        <input type="password" id="pass" placeholder="Senha">
-        <button onclick="entrar()">Acessar Painel</button>
-        <p id="msg"></p>
+        <h2>ZEUS</h2>
+        <input type="email" id="email" placeholder="E-mail de Administrador">
+        <input type="password" id="password" placeholder="Senha Mestra">
+        <button class="btn-login" id="btn-entrar" onclick="entrar()">ACESSAR PAINEL</button>
+        <a href="index.html" class="footer-link">VOLTAR PARA A LOJA</a>
     </div>
 
     <script>
-        // Coloque sua URL e KEY reais aqui em cima, onde você já tinha colocado antes
-    const SUPABASE_URL = 'https://fxmoxqvtamsxqpabbade.supabase.co'; 
-    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ4bW94cXZ0YW1zeHFwYWJiYWRlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM0Njc3NTgsImV4cCI6MjA4OTA0Mzc1OH0.H2mn5rb2WChGw9yWMrdk3MpYIHH1N0hKZMeggOEiQBU';
-    const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        // Use as mesmas credenciais do seu projeto Supabase
+        const _supabase = supabase.createClient('https://fxmoxqvtamsxqpabbade.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ4moxqvtamsxqpabbadeiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM0Njc3NTgsImV4cCI6MjA4OTA0Mzc1OH0.H2mn5rb2WChGw9yWMrdk3MpYIHH1N0hKZMeggOEiQBU');
 
-async function entrar() {
-    const email = document.getElementById('email').value;
-    const password = document.getElementById('pass').value;
-    const msg = document.getElementById('msg');
-    
-    msg.innerText = "Verificando...";
-    msg.style.color = "#C9A84C";
+        // Monitora o estado de login - Se logar, ele já redireciona
+        _supabase.auth.onAuthStateChange((event, session) => {
+            if (event === 'SIGNED_IN') {
+                window.location.href = 'admin.html';
+            }
+        });
 
-    const { data, error } = await _supabase.auth.signInWithPassword({
-        email: email,
-        password: password
-    });
+        async function entrar() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const btn = document.getElementById('btn-entrar');
 
-    if (error) {
-        msg.style.color = "#ff4444";
-        if (error.message === "Invalid login credentials") {
-            msg.innerText = "E-mail ou senha incorretos.";
-        } else {
-            msg.innerText = "Erro: " + error.message;
+            if (!email || !password) {
+                alert("Preencha todos os campos!");
+                return;
+            }
+
+            btn.innerText = "VERIFICANDO...";
+            btn.style.opacity = "0.7";
+
+            const { error } = await _supabase.auth.signInWithPassword({
+                email: email,
+                password: password,
+            });
+
+            if (error) {
+                alert("Acesso negado: " + error.message);
+                btn.innerText = "ACESSAR PAINEL";
+                btn.style.opacity = "1";
+            }
         }
-    } else {
-        msg.style.color = "#00ff00";
-        msg.innerText = "Acesso autorizado! Entrando...";
-        setTimeout(() => {
-            window.location.href = "admin.html";
-        }, 1000);
-    }
-}
+
+        // Verifica se já está logado ao abrir a tela de login
+        async function checkSession() {
+            const { data: { session } } = await _supabase.auth.getSession();
+            if (session) {
+                window.location.href = 'admin.html';
+            }
+        }
+        checkSession();
     </script>
 </body>
 </html>
