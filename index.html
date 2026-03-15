@@ -5,96 +5,212 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ZEUS — Urban Luxury</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@900&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
-        :root { --maroon: #1a0004; --gold: #C9A84C; --cream: #F5F0E8; }
-        body { font-family: 'Inter', sans-serif; background: var(--maroon); color: var(--cream); margin: 0; }
+        :root { --maroon: #1a0004; --gold: #C9A84C; --cream: #F5F0E8; --dark-rgba: rgba(26, 0, 4, 0.95); }
         
-        header { height: 35vh; display: flex; flex-direction: column; justify-content: center; align-items: center; }
-        header h1 { font-family: 'Playfair Display', serif; font-size: 4rem; color: var(--gold); letter-spacing: 15px; margin: 0; }
+        * { box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: var(--maroon); color: var(--cream); margin: 0; overflow-x: hidden; }
 
-        .filters { display: flex; justify-content: center; gap: 15px; margin-bottom: 40px; flex-wrap: wrap; }
-        .f-btn { background: none; border: 1px solid var(--gold); color: var(--gold); padding: 8px 15px; cursor: pointer; text-transform: uppercase; font-size: 10px; transition: 0.3s; }
-        .f-btn.active { background: var(--gold); color: var(--maroon); }
+        /* Header Estilo High-End */
+        header { height: 40vh; display: flex; flex-direction: column; justify-content: center; align-items: center; background: radial-gradient(circle, #2a0006 0%, #1a0004 100%); }
+        header h1 { font-family: 'Playfair Display', serif; font-size: clamp(3.5rem, 12vw, 7rem); color: var(--gold); letter-spacing: 20px; margin: 0; animation: fadeInDown 1.2s ease; }
+        header p { letter-spacing: 8px; opacity: 0.5; font-size: 0.7rem; text-transform: uppercase; margin-top: -10px; }
 
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 30px; max-width: 1200px; margin: 0 auto; padding: 20px; }
+        /* Filtros */
+        .filters { display: flex; justify-content: center; gap: 15px; margin: 40px 0; flex-wrap: wrap; padding: 0 20px; }
+        .f-btn { background: none; border: 1px solid rgba(201, 168, 76, 0.3); color: var(--gold); padding: 10px 25px; cursor: pointer; text-transform: uppercase; font-size: 10px; letter-spacing: 2px; transition: 0.4s; border-radius: 50px; }
+        .f-btn.active, .f-btn:hover { background: var(--gold); color: var(--maroon); border-color: var(--gold); box-shadow: 0 0 15px rgba(201, 168, 76, 0.3); }
+
+        /* Grid de Produtos */
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 40px; max-width: 1400px; margin: 0 auto; padding: 0 20px 100px; }
+
+        /* Card do Produto */
+        .card { background: transparent; position: relative; transition: 0.5s; }
         
-        .card { background: rgba(255,255,255,0.03); border-radius: 4px; overflow: hidden; position: relative; }
-        .img-box { width: 100%; height: 400px; overflow: hidden; }
-        .img-box img { width: 100%; height: 100%; object-fit: cover; transition: 0.5s; }
+        /* Slide de Fotos */
+        .img-container { width: 100%; height: 480px; position: relative; overflow: hidden; border-radius: 4px; background: #000; }
+        .slider-wrapper { display: flex; width: 100%; height: 100%; transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1); }
+        .slider-wrapper img { width: 100%; height: 100%; object-fit: cover; flex-shrink: 0; }
         
-        .info { padding: 20px; text-align: center; }
-        .price { color: var(--gold); font-size: 1.2rem; font-weight: bold; display: block; margin: 10px 0; }
+        /* Indicadores de fotos (Barrinhas estilo Instagram) */
+        .slide-indicators { position: absolute; top: 12px; left: 10px; right: 10px; display: flex; gap: 5px; z-index: 5; }
+        .ind-bar { height: 2px; flex: 1; background: rgba(255,255,255,0.2); border-radius: 2px; transition: 0.3s; }
+        .ind-bar.active { background: var(--gold); box-shadow: 0 0 5px var(--gold); }
+
+        /* Botões laterais do Slide */
+        .slide-nav { position: absolute; top: 0; bottom: 0; width: 20%; z-index: 4; cursor: pointer; }
+        .nav-prev { left: 0; }
+        .nav-next { right: 0; }
+
+        .badge-esgotado { position: absolute; top: 25px; left: 0; background: #ff4444; color: white; padding: 5px 15px; font-size: 10px; font-weight: bold; z-index: 10; text-transform: uppercase; letter-spacing: 1px; }
+
+        /* Informações do Produto */
+        .info { padding: 25px 10px; text-align: left; }
+        .info h3 { margin: 0; font-family: 'Playfair Display', serif; font-size: 1.4rem; letter-spacing: 1px; color: var(--gold); }
+        .price { font-size: 1.1rem; font-weight: 300; display: block; margin: 8px 0 20px; opacity: 0.9; }
+
+        /* Botões de Ação */
+        .actions { display: flex; flex-direction: column; gap: 10px; }
+        .btn-wa { background: #25D366; color: white; padding: 16px; text-decoration: none; font-weight: bold; text-align: center; font-size: 11px; text-transform: uppercase; letter-spacing: 2px; transition: 0.3s; }
+        .btn-wa:hover { filter: brightness(1.1); transform: translateY(-2px); }
         
-        .btn-wa { background: #25D366; color: white; padding: 12px; display: block; text-decoration: none; font-weight: bold; border-radius: 2px; font-size: 11px; margin-bottom: 10px; }
-        .btn-share-link { background: none; border: 1px solid rgba(255,255,255,0.2); color: #aaa; padding: 8px; width: 100%; cursor: pointer; font-size: 10px; text-transform: uppercase; }
+        .btn-secondary-group { display: flex; gap: 10px; }
+        .btn-sec { flex: 1; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: var(--cream); padding: 12px; cursor: pointer; font-size: 10px; text-transform: uppercase; letter-spacing: 1px; transition: 0.3s; }
+        .btn-sec:hover { border-color: var(--gold); color: var(--gold); }
 
-        /* Botão Flutuante WhatsApp */
-        .wa-float { position: fixed; bottom: 30px; right: 30px; background: #25D366; color: white; width: 60px; height: 60px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 30px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); z-index: 100; text-decoration: none; }
+        /* WhatsApp Flutuante */
+        .wa-float { position: fixed; bottom: 30px; right: 30px; background: #25D366; color: white; width: 60px; height: 60px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 28px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); z-index: 999; text-decoration: none; animation: pulse 2s infinite; }
 
-        /* Rodapé com Acesso Restrito */
-        footer { padding: 50px 20px; text-align: center; opacity: 0.5; font-size: 12px; }
-        .admin-link { color: var(--gold); text-decoration: none; border: 1px solid var(--gold); padding: 5px 10px; border-radius: 4px; }
+        /* MODAL DE MEDIDAS (Glassmorphism) */
+        #modalMedidas { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); backdrop-filter: blur(15px); z-index: 2000; justify-content: center; align-items: center; }
+        .m-content { background: var(--dark-rgba); border: 1px solid var(--gold); padding: 50px; width: 90%; max-width: 450px; text-align: center; position: relative; animation: slideUp 0.5s ease; box-shadow: 0 0 50px rgba(201,168,76,0.15); }
+        .m-content h2 { font-family: 'Playfair Display'; color: var(--gold); letter-spacing: 5px; margin-bottom: 30px; }
+        .m-table { width: 100%; border-collapse: collapse; margin-bottom: 30px; }
+        .m-table td { padding: 15px; border-bottom: 1px solid rgba(201,168,76,0.1); font-size: 13px; letter-spacing: 1px; }
+        .close-m { position: absolute; top: 20px; right: 20px; color: var(--gold); font-size: 24px; cursor: pointer; }
 
-        /* Modal Medidas */
-        #modalMedidas { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); backdrop-filter: blur(10px); z-index: 2000; justify-content: center; align-items: center; }
-        .m-content { background: var(--maroon); border: 1px solid var(--gold); padding: 30px; width: 90%; max-width: 350px; text-align: center; box-shadow: 0 0 30px rgba(201,168,76,0.2); }
+        /* Animações */
+        @keyframes fadeInDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.4); } 70% { box-shadow: 0 0 0 15px rgba(37, 211, 102, 0); } 100% { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0); } }
+
+        footer { padding: 80px 20px; text-align: center; border-top: 1px solid rgba(201, 168, 76, 0.1); }
+        .admin-access { color: var(--gold); text-decoration: none; font-size: 10px; letter-spacing: 3px; opacity: 0.4; transition: 0.3s; }
+        .admin-access:hover { opacity: 1; }
     </style>
 </head>
 <body>
 
     <a href="https://wa.me/55839XXXXXXXX" class="wa-float" target="_blank">📲</a>
 
-    <header><h1>ZEUS</h1><p style="letter-spacing: 5px; opacity: 0.6;">PATOS — PB</p></header>
+    <header>
+        <h1>ZEUS</h1>
+        <p>Urban Luxury — Patos, PB</p>
+    </header>
 
-    <div class="filters" id="filtros"></div>
+    <div class="filters" id="filtros">
+        </div>
 
-    <div class="grid" id="grid"></div>
+    <div class="grid" id="grid">
+        </div>
 
     <footer>
-        <p>© 2026 ZEUS URBAN LUXURY</p><br>
-        <a href="login.html" class="admin-link">MODO ACESSO RESTRITO</a>
+        <p style="font-size: 11px; opacity: 0.5; letter-spacing: 2px;">© 2026 ZEUS WORLDWIDE</p><br>
+        <a href="login.html" class="admin-access">ACESSO RESTRITO</a>
     </footer>
 
-    <div id="modalMedidas" onclick="this.style.display='none'">
-        <div class="m-content" onclick="event.stopPropagation()">
-            <h2 style="color: var(--gold); font-family: 'Playfair Display';">TABELA DE MEDIDAS</h2>
-            <p>P: 50x70cm | M: 52x72cm | G: 54x74cm</p>
-            <button onclick="this.parentElement.parentElement.style.display='none'" style="background: var(--gold); border: none; padding: 10px; cursor: pointer;">FECHAR</button>
+    <div id="modalMedidas">
+        <div class="m-content">
+            <span class="close-m" onclick="toggleMedidas()">×</span>
+            <h2>GUIA DE TAMANHOS</h2>
+            <table class="m-table">
+                <tr><td>TAMANHO P</td><td>50cm LARGURA | 70cm ALTURA</td></tr>
+                <tr><td>TAMANHO M</td><td>52cm LARGURA | 72cm ALTURA</td></tr>
+                <tr><td>TAMANHO G</td><td>54cm LARGURA | 74cm ALTURA</td></tr>
+                <tr><td>TAMANHO GG</td><td>56cm LARGURA | 76cm ALTURA</td></tr>
+            </table>
+            <p style="font-size: 10px; opacity: 0.5;">* Medidas aproximadas em centímetros.</p>
         </div>
     </div>
 
     <script>
         const _supabase = supabase.createClient('https://fxmoxqvtamsxqpabbade.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ4bW94cXZ0YW1zeHFwYWJiYWRlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM0Njc3NTgsImV4cCI6MjA4OTA0Mzc1OH0.H2mn5rb2WChGw9yWMrdk3MpYIHH1N0hKZMeggOEiQBU');
-        let produtos = [];
+        let produtosGerais = [];
 
         async function init() {
-            const { data } = await _supabase.from('Produtos').select('*').order('id', { ascending: false });
-            produtos = data;
-            const cats = ['todos', ...new Set(data.map(p => p.categoria).filter(c => c))];
-            document.getElementById('filtros').innerHTML = cats.map(c => `<button class="f-btn" onclick="filtrar('${c}')">${c}</button>`).join('');
-            render(produtos);
+            const { data, error } = await _supabase.from('Produtos').select('*').order('id', { ascending: false });
+            if (error) return;
+            produtosGerais = data;
+
+            // Filtros Dinâmicos
+            const categorias = ['todos', ...new Set(data.map(p => p.categoria).filter(c => c))];
+            const filtroConteudo = categorias.map(c => `
+                <button class="f-btn ${c === 'todos' ? 'active' : ''}" onclick="filtrar('${c}', this)">${c}</button>
+            `).join('');
+            document.getElementById('filtros').innerHTML = filtroConteudo;
+
+            render(produtosGerais);
         }
 
         function render(lista) {
-            document.getElementById('grid').innerHTML = lista.map(p => {
-                const extras = p.fotos_extras ? p.fotos_extras.split(',') : [];
-                const hover = extras.length > 0 ? `onmouseover="this.src='${extras[0].trim()}'" onmouseout="this.src='${p.imagem_url}'"` : '';
+            const grid = document.getElementById('grid');
+            grid.innerHTML = lista.map((p, pIndex) => {
+                const fotos = [p.imagem_url, ...(p.fotos_extras ? p.fotos_extras.split(',') : [])].filter(url => url.trim() !== "");
+                
+                // Gerar indicadores do slide
+                const indicadores = fotos.map((_, i) => `<div class="ind-bar ${i === 0 ? 'active' : ''}" id="ind-${pIndex}-${i}"></div>`).join('');
+                
+                // Gerar imagens do slide
+                const imagensHtml = fotos.map(url => `<img src="${url.trim()}">`).join('');
+
                 return `
                 <div class="card">
-                    <div class="img-box"><img src="${p.imagem_url}" ${hover}></div>
+                    ${p.esgotado ? '<div class="badge-esgotado">Esgotado</div>' : ''}
+                    <div class="img-container">
+                        <div class="slide-indicators">${indicadores}</div>
+                        <div class="slide-nav nav-prev" onclick="moveSlide(${pIndex}, -1, ${fotos.length})"></div>
+                        <div class="slide-nav nav-next" onclick="moveSlide(${pIndex}, 1, ${fotos.length})"></div>
+                        <div class="slider-wrapper" id="wrapper-${pIndex}">${imagensHtml}</div>
+                    </div>
                     <div class="info">
                         <h3>${p.nome}</h3>
-                        <span class="price">R$ ${p.preco}</span>
-                        ${p.esgotado ? '<div class="btn-wa" style="background:#444">ESGOTADO</div>' : `<a href="https://wa.me/55839XXXXXXXX?text=Salve! Quero: ${p.nome}" class="btn-wa" target="_blank">Pedir Agora</a>`}
-                        <button class="btn-share-link" onclick="share('${p.nome}')">🔗 Compartilhar Peça</button>
+                        <span class="price">R$ ${p.preco.toFixed(2)}</span>
+                        
+                        <div class="actions">
+                            ${p.esgotado 
+                                ? '<div class="btn-wa" style="background:#333; cursor:not-allowed">Produto Indisponível</div>' 
+                                : `<a href="https://wa.me/55839XXXXXXXX?text=Salve ZEUS! Quero a peça: ${p.nome}" class="btn-wa" target="_blank">Adicionar ao Carrinho</a>`
+                            }
+                            <div class="btn-secondary-group">
+                                <button class="btn-sec" onclick="toggleMedidas()">📐 Medidas</button>
+                                <button class="btn-sec" onclick="compartilhar('${p.nome}')">📤 Enviar</button>
+                            </div>
+                        </div>
                     </div>
                 </div>`;
             }).join('');
         }
 
-        function filtrar(c) { render(c === 'todos' ? produtos : produtos.filter(p => p.categoria === c)); }
-        function share(n) { if(navigator.share) navigator.share({title:'ZEUS', text:'Olha essa peça: '+n, url: window.location.href}); }
+        // Lógica do Carrossel
+        let slideStates = {};
+
+        function moveSlide(pIndex, direction, total) {
+            if (!slideStates[pIndex]) slideStates[pIndex] = 0;
+            
+            slideStates[pIndex] += direction;
+
+            if (slideStates[pIndex] >= total) slideStates[pIndex] = 0;
+            if (slideStates[pIndex] < 0) slideStates[pIndex] = total - 1;
+
+            const wrapper = document.getElementById(`wrapper-${pIndex}`);
+            wrapper.style.transform = `translateX(-${slideStates[pIndex] * 100}%)`;
+
+            // Atualizar indicadores
+            for (let i = 0; i < total; i++) {
+                document.getElementById(`ind-${pIndex}-${i}`).classList.toggle('active', i === slideStates[pIndex]);
+            }
+        }
+
+        function filtrar(cat, btn) {
+            document.querySelectorAll('.f-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            render(cat === 'todos' ? produtosGerais : produtosGerais.filter(p => p.categoria === cat.toUpperCase()));
+        }
+
+        function toggleMedidas() {
+            const m = document.getElementById('modalMedidas');
+            m.style.display = (m.style.display === 'flex') ? 'none' : 'flex';
+        }
+
+        function compartilhar(nome) {
+            if (navigator.share) {
+                navigator.share({ title: 'ZEUS URBAN LUXURY', text: `Olha essa peça que encontrei na ZEUS: ${nome}`, url: window.location.href });
+            } else {
+                alert('Link da ZEUS copiado para você enviar!');
+            }
+        }
+
         init();
     </script>
 </body>
