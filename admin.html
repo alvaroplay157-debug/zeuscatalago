@@ -3,230 +3,203 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ZEUS - Painel de Controle</title>
+    <title>ZEUS - Admin Experience</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root { --maroon: #3D0009; --gold: #C9A84C; --cream: #F5F0E8; }
         body { background: var(--cream); font-family: 'Segoe UI', sans-serif; margin: 0; display: flex; }
         
-        /* Sidebar */
         .sidebar { width: 260px; background: var(--maroon); color: var(--gold); height: 100vh; padding: 30px; position: fixed; box-sizing: border-box; }
         .sidebar h2 { letter-spacing: 5px; border-bottom: 1px solid #5C0A14; padding-bottom: 10px; font-family: 'serif'; }
         
-        /* Área Principal */
         .main { margin-left: 260px; flex: 1; padding: 40px; }
-        .card { background: white; padding: 25px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); margin-bottom: 40px; }
+        .card { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); margin-bottom: 40px; }
         
-        /* Formulário */
-        label { display: block; margin-top: 15px; font-size: 0.8rem; font-weight: bold; color: var(--maroon); }
-        input, textarea, select { width: 100%; padding: 12px; margin: 5px 0 10px 0; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box; }
+        h1, h3 { color: var(--maroon); text-transform: uppercase; letter-spacing: 2px; }
         
-        .check-group { display: flex; align-items: center; gap: 10px; margin: 15px 0; padding: 10px; border: 1px solid var(--gold); border-radius: 4px; background: rgba(201,168,76,0.05); }
-        .check-group input { width: auto; margin: 0; }
+        /* Sistema de Grade de Fotos */
+        .photo-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin: 20px 0; }
+        .photo-slot { 
+            aspect-ratio: 1/1; border: 2px dashed #ddd; border-radius: 8px; 
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            cursor: pointer; position: relative; overflow: hidden; transition: 0.3s; background: #fafafa;
+        }
+        .photo-slot:hover { border-color: var(--gold); background: #fffdf9; }
+        .photo-slot img { width: 100%; height: 100%; object-fit: cover; position: absolute; top: 0; left: 0; }
+        .photo-slot span { font-size: 0.7rem; color: #888; text-align: center; padding: 10px; pointer-events: none; }
+        .photo-slot.main-slot { border-style: solid; border-color: var(--gold); background: #fff; }
+        .photo-slot.main-slot::after { content: "PRINCIPAL"; position: absolute; top: 5px; left: 5px; background: var(--gold); color: var(--maroon); font-size: 8px; font-weight: bold; padding: 2px 6px; border-radius: 2px; }
+
+        input[type="file"] { display: none; } /* Esconde o botão padrão */
+
+        input[type="text"], input[type="number"], textarea { 
+            width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #eee; border-radius: 6px; outline: none; transition: 0.3s;
+        }
+        input:focus { border-color: var(--gold); }
+
+        .check-group { display: flex; align-items: center; gap: 10px; margin: 20px 0; font-size: 0.9rem; font-weight: bold; }
         
-        button { background: var(--maroon); color: var(--gold); padding: 12px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; width: 100%; text-transform: uppercase; transition: 0.3s; }
-        button:hover { background: #5C0A14; }
-        
-        .btn-voltar { color: var(--gold); text-decoration: none; font-weight: bold; display: block; margin-bottom: 20px; border: 1px solid var(--gold); padding: 10px; text-align: center; border-radius: 4px; font-size: 0.9rem; transition: 0.3s; }
-        
-        /* Tabela */
-        table { width: 100%; border-collapse: collapse; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
-        th { background: var(--maroon); color: var(--gold); padding: 15px; text-align: left; }
-        td { padding: 15px; border-bottom: 1px solid #eee; font-size: 0.9rem; }
-        img.thumb { width: 50px; height: 50px; object-fit: cover; border-radius: 4px; background: #eee; }
-        
-        .btn-delete { background: #ff4444; color: white; padding: 8px 15px; border-radius: 4px; border: none; cursor: pointer; font-size: 0.7rem; width: auto; }
-        
-        #status-upload { font-size: 0.8rem; color: #cc0000; font-weight: bold; margin-bottom: 10px; display: none; }
+        button#btn-salvar { 
+            background: var(--maroon); color: var(--gold); padding: 15px; border: none; border-radius: 6px; 
+            cursor: pointer; font-weight: bold; width: 100%; text-transform: uppercase; letter-spacing: 2px;
+        }
+        button#btn-salvar:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; background: white; border-radius: 8px; overflow: hidden; }
+        th { background: var(--maroon); color: var(--gold); padding: 15px; text-align: left; font-size: 0.8rem; }
+        td { padding: 15px; border-bottom: 1px solid #eee; }
+        .thumb-list { width: 50px; height: 50px; border-radius: 4px; object-fit: cover; }
     </style>
 </head>
 <body>
 
     <div class="sidebar">
         <h2>ZEUS</h2>
-        <p style="font-size: 0.8rem; letter-spacing: 2px;">PAINEL ADMIN</p>
+        <p style="font-size: 0.7rem; opacity: 0.7;">ADMIN TERMINAL</p>
         <br><br>
-        <a href="index.html" class="btn-voltar">← Ver Loja</a>
-        <button onclick="logout()" style="background:transparent; border: 1px solid var(--gold);">Sair do Sistema</button>
+        <a href="index.html" style="color: var(--gold); text-decoration: none; font-size: 0.9rem; border: 1px solid; padding: 10px; display: block; text-align: center;">VER CATÁLOGO</a>
     </div>
 
     <div class="main">
-        <h1>Gerenciar Catálogo</h1>
-        
         <div class="card">
-            <h3>Publicar Nova Peça</h3>
+            <h3>Novo Lançamento</h3>
             
-            <label>Nome do Produto</label>
-            <input type="text" id="nome" placeholder="Ex: Camiseta Oversized Black">
-            
-            <label>Categoria</label>
-            <input type="text" id="categoria" placeholder="Ex: CAMISETAS, CONJUNTOS, ACESSÓRIOS">
-            
-            <label>Preço (R$)</label>
-            <input type="number" id="preco" step="0.01" placeholder="Ex: 149.90">
-            
-            <label>Descrição</label>
-            <textarea id="desc" placeholder="Detalhes da peça, tecido, caimento..."></textarea>
-            
-            <label>Foto Principal (Obrigatória)</label>
-            <input type="file" id="arquivo-imagem" accept="image/*">
-            
-            <label>Fotos Extras (Máximo 3 - Segure Ctrl para selecionar várias)</label>
-            <input type="file" id="arquivos-extras" accept="image/*" multiple>
-            
-            <div class="check-group">
-                <input type="checkbox" id="esgotado">
-                <label for="esgotado" style="margin: 0;">MARCAR COMO ESGOTADO (Oculta o botão de compra)</label>
+            <div class="photo-grid">
+                <label class="photo-slot main-slot" id="label-0">
+                    <input type="file" onchange="preview(this, 0)" id="file-0" accept="image/*">
+                    <img id="img-0" style="display:none">
+                    <span>Clique para<br>Foto de Capa</span>
+                </label>
+                <label class="photo-slot" id="label-1">
+                    <input type="file" onchange="preview(this, 1)" id="file-1" accept="image/*">
+                    <img id="img-1" style="display:none">
+                    <span>Detalhe 1</span>
+                </label>
+                <label class="photo-slot" id="label-2">
+                    <input type="file" onchange="preview(this, 2)" id="file-2" accept="image/*">
+                    <img id="img-2" style="display:none">
+                    <span>Detalhe 2</span>
+                </label>
+                <label class="photo-slot" id="label-3">
+                    <input type="file" onchange="preview(this, 3)" id="file-3" accept="image/*">
+                    <img id="img-3" style="display:none">
+                    <span>Detalhe 3</span>
+                </label>
             </div>
 
-            <p id="status-upload">A processar... Por favor, aguarde.</p>
-            <button id="btn-salvar" onclick="salvar()">Publicar no Site</button>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                <input type="text" id="nome" placeholder="NOME DA PEÇA">
+                <input type="text" id="categoria" placeholder="CATEGORIA (Ex: CAMISETAS)">
+            </div>
+            
+            <input type="number" id="preco" step="0.01" placeholder="PREÇO (R$)">
+            <textarea id="desc" rows="3" placeholder="DESCRIÇÃO BREVE"></textarea>
+
+            <div class="check-group">
+                <input type="checkbox" id="esgotado">
+                <label for="esgotado">MARCAR COMO ESGOTADO</label>
+            </div>
+
+            <button id="btn-salvar" onclick="processarEnvio()">PUBLICAR NA ZEUS</button>
         </div>
 
-        <h3>Produtos Cadastrados</h3>
-        <table>
-            <thead>
-                <tr>
-                    <th>Foto</th>
-                    <th>Nome / Categoria</th>
-                    <th>Preço</th>
-                    <th>Status</th>
-                    <th>Ação</th>
-                </tr>
-            </thead>
-            <tbody id="tabela-corpo"></tbody>
+        <h3>Itens Ativos</h3>
+        <table id="tabela-produtos">
+            <thead><tr><th>Capa</th><th>Nome</th><th>Status</th><th>Ação</th></tr></thead>
+            <tbody id="corpo-tabela"></tbody>
         </table>
     </div>
 
     <script>
-        // Configurações do Supabase
-        const SUPABASE_URL = 'https://fxmoxqvtamsxqpabbade.supabase.co'; 
-        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ4bW94cXZ0YW1zeHFwYWJiYWRlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM0Njc3NTgsImV4cCI6MjA4OTA0Mzc1OH0.H2mn5rb2WChGw9yWMrdk3MpYIHH1N0hKZMeggOEiQBU';
-        const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        const _supabase = supabase.createClient('https://fxmoxqvtamsxqpabbade.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ4bW94cXZ0YW1zeHFwYWJiYWRlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM0Njc3NTgsImV4cCI6MjA4OTA0Mzc1OH0.H2mn5rb2WChGw9yWMrdk3MpYIHH1N0hKZMeggOEiQBU');
 
-        // Verifica se o usuário está logado
-        async function verificarSessao() {
-            const { data } = await _supabase.auth.getSession();
-            if (!data.session) window.location.href = "login.html";
-        }
-        verificarSessao();
-
-        async function salvar() {
-            const btn = document.getElementById('btn-salvar');
-            const status = document.getElementById('status-upload');
-            
-            const nome = document.getElementById('nome').value;
-            const categoria = document.getElementById('categoria').value;
-            const preco = document.getElementById('preco').value;
-            const descricao = document.getElementById('desc').value;
-            const esgotado = document.getElementById('esgotado').checked;
-            
-            const arquivoPrincipal = document.getElementById('arquivo-imagem').files[0];
-            const arquivosExtras = document.getElementById('arquivos-extras').files;
-
-            if (!nome || !preco || !arquivoPrincipal) {
-                return alert("Preencha Nome, Preço e selecione a Foto Principal!");
+        // Função para mostrar a foto assim que selecionada
+        function preview(input, index) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const img = document.getElementById(`img-${index}`);
+                    img.src = e.target.result;
+                    img.style.display = 'block';
+                }
+                reader.readAsDataURL(input.files[0]);
             }
+        }
+
+        async function processarEnvio() {
+            const btn = document.getElementById('btn-salvar');
+            const principal = document.getElementById('file-0').files[0];
+            
+            if (!principal) return alert("A foto principal é obrigatória!");
 
             btn.disabled = true;
-            btn.innerText = "A Enviar...";
-            status.style.display = "block";
+            btn.innerText = "SUBINDO IMAGENS...";
 
             try {
-                // 1. Upload da Foto Principal
-                const nomePrincipal = `${Date.now()}_main_${arquivoPrincipal.name.replace(/\s/g, '_')}`;
-                const { error: errPrincipal } = await _supabase.storage
-                    .from('fotos-produtos')
-                    .upload(nomePrincipal, arquivoPrincipal);
+                // 1. Upload Principal
+                const urlPrincipal = await subirParaStorage(principal, 'main');
 
-                if (errPrincipal) throw new Error("Erro na foto principal: " + errPrincipal.message);
-
-                const { data: linkMain } = _supabase.storage.from('fotos-produtos').getPublicUrl(nomePrincipal);
-
-                // 2. Upload das Fotos Extras (Máximo 3)
-                let linksExtras = [];
-                const totalParaSubir = Math.min(arquivosExtras.length, 3);
-
-                for (let i = 0; i < totalParaSubir; i++) {
-                    const extra = arquivosExtras[i];
-                    const nomeExtra = `${Date.now()}_extra${i}_${extra.name.replace(/\s/g, '_')}`;
-                    
-                    const { error: errExtra } = await _supabase.storage
-                        .from('fotos-produtos')
-                        .upload(nomeExtra, extra);
-                    
-                    if (!errExtra) {
-                        const { data: linkE } = _supabase.storage.from('fotos-produtos').getPublicUrl(nomeExtra);
-                        linksExtras.push(linkE.publicUrl);
+                // 2. Upload Extras
+                let extras = [];
+                for(let i=1; i<=3; i++) {
+                    const f = document.getElementById(`file-${i}`).files[0];
+                    if(f) {
+                        const url = await subirParaStorage(f, `extra${i}`);
+                        extras.push(url);
                     }
                 }
 
-                // 3. Salvar Dados na Tabela Produtos
-                const { error: dbError } = await _supabase.from('Produtos').insert([{
-                    nome,
-                    categoria: categoria.toUpperCase(),
-                    preco: parseFloat(preco),
-                    descricao,
-                    imagem_url: linkMain.publicUrl,
-                    fotos_extras: linksExtras.join(','),
-                    esgotado
+                // 3. Salvar no Banco
+                const { error } = await _supabase.from('Produtos').insert([{
+                    nome: document.getElementById('nome').value,
+                    categoria: document.getElementById('categoria').value.toUpperCase(),
+                    preco: parseFloat(document.getElementById('preco').value),
+                    descricao: document.getElementById('desc').value,
+                    imagem_url: urlPrincipal,
+                    fotos_extras: extras.join(','),
+                    esgotado: document.getElementById('esgotado').checked
                 }]);
 
-                if (dbError) throw dbError;
-
-                alert("Produto publicado com sucesso!");
+                if (error) throw error;
+                alert("Peça publicada com sucesso!");
                 location.reload();
 
-            } catch (err) {
-                alert("Erro: " + err.message);
-                console.error(err);
-            } finally {
+            } catch (e) {
+                alert("Erro: " + e.message);
                 btn.disabled = false;
-                btn.innerText = "Publicar no Site";
-                status.style.display = "none";
+                btn.innerText = "PUBLICAR NA ZEUS";
             }
         }
 
-        async function listarProdutos() {
-            const { data, error } = await _supabase.from('Produtos').select('*').order('id', { ascending: false });
-            const corpo = document.getElementById('tabela-corpo');
-            if (error) return console.error(error);
+        async function subirParaStorage(arquivo, prefixo) {
+            const nomeUnico = `${Date.now()}_${prefixo}_${arquivo.name.replace(/\s/g, '_')}`;
+            const { error } = await _supabase.storage.from('fotos-produtos').upload(nomeUnico, arquivo);
+            if (error) throw error;
+            const { data } = _supabase.storage.from('fotos-produtos').getPublicUrl(nomeUnico);
+            return data.publicUrl;
+        }
 
-            corpo.innerHTML = ''; 
-            data.forEach(item => {
-                const badgeStatus = item.esgotado 
-                    ? '<span style="color:red; font-weight:bold;">ESGOTADO</span>' 
-                    : '<span style="color:green; font-weight:bold;">ATIVO</span>';
-
-                corpo.innerHTML += `
-                    <tr>
-                        <td><img src="${item.imagem_url}" class="thumb" onerror="this.src='https://via.placeholder.com/50'"></td>
-                        <td>
-                            <strong>${item.nome}</strong><br>
-                            <small style="color:#888">${item.categoria || 'SEM CATEGORIA'}</small>
-                        </td>
-                        <td>R$ ${item.preco}</td>
-                        <td>${badgeStatus}</td>
-                        <td><button class="btn-delete" onclick="excluir(${item.id})">REMOVER</button></td>
-                    </tr>
-                `;
-            });
+        async function listar() {
+            const { data } = await _supabase.from('Produtos').select('*').order('id', { ascending: false });
+            const corpo = document.getElementById('corpo-tabela');
+            corpo.innerHTML = data.map(p => `
+                <tr>
+                    <td><img src="${p.imagem_url}" class="thumb-list"></td>
+                    <td><strong>${p.nome}</strong></td>
+                    <td style="color:${p.esgotado ? 'red':'green'}">${p.esgotado ? 'ESGOTADO':'ATIVO'}</td>
+                    <td><button onclick="excluir(${p.id})" style="background:none; border:none; color:red; cursor:pointer">Remover</button></td>
+                </tr>
+            `).join('');
         }
 
         async function excluir(id) {
-            if (confirm("Deseja remover este item definitivamente?")) {
-                const { error } = await _supabase.from('Produtos').delete().eq('id', id);
-                if (error) alert("Erro: " + error.message);
-                else { alert("Item removido!"); listarProdutos(); }
+            if(confirm("Deseja apagar este produto?")) {
+                await _supabase.from('Produtos').delete().eq('id', id);
+                listar();
             }
         }
 
-        async function logout() {
-            await _supabase.auth.signOut();
-            window.location.href = "login.html";
-        }
-
-        listarProdutos();
+        listar();
     </script>
 </body>
 </html>
