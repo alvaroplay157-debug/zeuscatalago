@@ -1,127 +1,113 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-br">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ZEUS — Urban Luxury</title>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@900&family=Inter:wght@300;400;600&display=swap" rel="stylesheet" />
-  <style>
-    :root { --maroon: #1a0004; --gold: #C9A84C; --cream: #F5F0E8; }
-    body { font-family: 'Inter', sans-serif; background: var(--maroon); color: var(--cream); margin: 0; }
-    
-    header { height: 40vh; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; }
-    header h1 { font-family: 'Playfair Display', serif; font-size: 5rem; color: var(--gold); margin: 0; letter-spacing: 10px; }
-
-    .filter-container { display: flex; justify-content: center; gap: 10px; margin-bottom: 40px; flex-wrap: wrap; }
-    .filter-btn { background: transparent; border: 1px solid var(--gold); color: var(--gold); padding: 8px 15px; cursor: pointer; text-transform: uppercase; font-size: 10px; transition: 0.3s; }
-    .filter-btn.active { background: var(--gold); color: var(--maroon); }
-
-    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 30px; max-width: 1200px; margin: 0 auto; padding: 20px; }
-    
-    .product-card { background: rgba(255,255,255,0.05); position: relative; border-radius: 4px; overflow: hidden; }
-    .badge-esgotado { position: absolute; top: 10px; left: 10px; background: #ff4444; color: white; padding: 5px 10px; font-size: 10px; font-weight: bold; z-index: 5; }
-    
-    .img-container { width: 100%; height: 400px; position: relative; overflow: hidden; }
-    .img-container img { width: 100%; height: 100%; object-fit: cover; }
-    
-    .info { padding: 20px; text-align: center; }
-    .price { font-size: 1.2rem; font-weight: bold; display: block; margin: 10px 0; }
-    
-    .btn-share { position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.5); border: none; color: white; padding: 8px; border-radius: 50%; cursor: pointer; z-index: 5; }
-    
-    .bbuy { background: #25D366; color: white; padding: 12px; display: block; text-decoration: none; font-weight: bold; text-transform: uppercase; border-radius: 4px; font-size: 11px; }
-    .btn-medidas { background: transparent; border: 1px solid var(--gold); color: var(--gold); padding: 5px 10px; font-size: 9px; cursor: pointer; margin-bottom: 15px; }
-
-    /* Modal Simples */
-    #modalMedidas { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 1000; justify-content: center; align-items: center; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ZEUS - Painel de Controle</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        :root { --maroon: #3D0009; --gold: #C9A84C; --cream: #F5F0E8; }
+        body { background: var(--cream); font-family: 'Segoe UI', sans-serif; margin: 0; display: flex; }
+        .sidebar { width: 260px; background: var(--maroon); color: var(--gold); height: 100vh; padding: 30px; position: fixed; box-sizing: border-box; }
+        .sidebar h2 { letter-spacing: 5px; border-bottom: 1px solid #5C0A14; padding-bottom: 10px; font-family: 'serif'; }
+        .main { margin-left: 260px; flex: 1; padding: 40px; }
+        .card { background: white; padding: 25px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); margin-bottom: 40px; }
+        input, textarea { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box; }
+        .check-group { display: flex; align-items: center; gap: 10px; margin: 15px 0; padding: 10px; border: 1px solid var(--gold); border-radius: 4px; background: rgba(201,168,76,0.05); }
+        button { background: var(--maroon); color: var(--gold); padding: 12px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; width: 100%; text-transform: uppercase; transition: 0.3s; }
+        button:hover { background: #5C0A14; }
+        .btn-voltar { color: var(--gold); text-decoration: none; font-weight: bold; display: block; margin-bottom: 20px; border: 1px solid var(--gold); padding: 10px; text-align: center; border-radius: 4px; font-size: 0.9rem; transition: 0.3s; }
+        table { width: 100%; border-collapse: collapse; background: white; border-radius: 8px; overflow: hidden; }
+        th { background: var(--maroon); color: var(--gold); padding: 15px; text-align: left; }
+        td { padding: 15px; border-bottom: 1px solid #eee; }
+        img.thumb { width: 50px; height: 50px; object-fit: cover; border-radius: 4px; }
+        .badge { padding: 4px 8px; border-radius: 4px; font-size: 10px; font-weight: bold; }
+        .badge-off { background: #ff4444; color: white; }
+    </style>
 </head>
 <body>
-
-  <header>
-    <h1>ZEUS</h1>
-    <p style="letter-spacing: 5px; opacity: 0.6;">PATOS — PB</p>
-  </header>
-
-  <div class="filter-container">
-    <button class="filter-btn active" onclick="filtrar('todos')">Todos</button>
-    <button class="filter-btn" onclick="filtrar('Camisetas')">Camisetas</button>
-    <button class="filter-btn" onclick="filtrar('Conjuntos')">Conjuntos</button>
-  </div>
-
-  <div class="grid" id="grid"></div>
-
-  <div id="modalMedidas" onclick="this.style.display='none'">
-    <div style="background: white; padding: 20px; border-radius: 8px; text-align: center;">
-        <h2 style="color: black;">Tabela de Medidas</h2>
-        <p style="color: #666;">P: 50cm x 70cm | M: 52cm x 72cm | G: 54cm x 74cm</p>
-        <button style="background: black; color: white; padding: 10px;">FECHAR</button>
+    <div class="sidebar">
+        <h2>ZEUS</h2>
+        <p style="font-size: 0.8rem; letter-spacing: 2px;">PAINEL ADMIN</p><br>
+        <a href="index.html" class="btn-voltar">← Ver Loja</a>
+        <button onclick="logout()" style="background:transparent; border: 1px solid var(--gold);">Sair</button>
     </div>
-  </div>
 
-  <script>
-    const SUPABASE_URL = 'https://fxmoxqvtamsxqpabbade.supabase.co'; 
-    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ4bW94cXZ0YW1zeHFwYWJiYWRlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM0Njc3NTgsImV4cCI6MjA4OTA0Mzc1OH0.H2mn5rb2WChGw9yWMrdk3MpYIHH1N0hKZMeggOEiQBU';
-    const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
-    let produtosGerais = [];
-
-    async function carregar() {
-      const { data, error } = await _supabase.from('Produtos').select('*').order('id', { ascending: false });
-      if (error) return;
-      produtosGerais = data;
-      exibirProdutos(produtosGerais);
-    }
-
-    function exibirProdutos(lista) {
-      const grid = document.getElementById('grid');
-      grid.innerHTML = '';
-      lista.forEach(p => {
-        const badge = p.esgotado ? '<div class="badge-esgotado">ESGOTADO</div>' : '';
-        const botao = p.esgotado ? '<div class="bbuy" style="background:#444">Indisponível</div>' : `<a href="https://wa.me/55839XXXXXXXX?text=Salve Zeus! Quero a peça: ${p.nome}" class="bbuy" target="_blank">Pedir no WhatsApp</a>`;
-        
-        // Lógica simples para trocar foto ao passar o mouse (se houver foto extra)
-        const fotos = p.fotos_extras ? p.fotos_extras.split(',') : [];
-        const fotoSecundaria = fotos.length > 0 ? fotos[0].trim() : p.imagem_url;
-
-        grid.innerHTML += `
-          <div class="product-card">
-            ${badge}
-            <button class="btn-share" onclick="compartilhar('${p.nome}')">📤</button>
-            <div class="img-container">
-              <img src="${p.imagem_url}" 
-                   onmouseover="this.src='${fotoSecundaria}'" 
-                   onmouseout="this.src='${p.imagem_url}'">
+    <div class="main">
+        <h1>Gerenciar Catálogo</h1>
+        <div class="card">
+            <h3>Nova Peça</h3>
+            <input type="text" id="nome" placeholder="Nome da Peça">
+            <input type="text" id="categoria" placeholder="Categoria (Camisetas, Conjuntos, etc)">
+            <input type="number" id="preco" step="0.01" placeholder="Preço (Ex: 149.90)">
+            <textarea id="desc" placeholder="Descrição"></textarea>
+            
+            <label style="font-size: 11px; font-weight: bold;">Foto Principal:</label>
+            <input type="file" id="arquivo-imagem" accept="image/*">
+            
+            <input type="text" id="fotos_extras" placeholder="Links de fotos extras (separados por vírgula)">
+            
+            <div class="check-group">
+                <input type="checkbox" id="esgotado" style="width: auto;">
+                <label for="esgotado" style="color: var(--maroon); font-weight: bold;">PRODUTO ESGOTADO</label>
             </div>
-            <div class="info">
-              <h3>${p.nome}</h3>
-              <p style="font-size: 12px; opacity: 0.7;">${p.descricao || ""}</p>
-              <button class="btn-medidas" onclick="document.getElementById('modalMedidas').style.display='flex'">Ver Medidas</button>
-              <span class="price">R$ ${p.preco}</span>
-              ${botao}
-            </div>
-          </div>
-        `;
-      });
-    }
+            
+            <button id="btn-salvar" onclick="salvar()">Publicar Produto</button>
+        </div>
 
-    function compartilhar(nome) {
-      if (navigator.share) {
-        navigator.share({ title: 'ZEUS', text: 'Olha essa peça da ZEUS: ' + nome, url: window.location.href });
-      } else {
-        alert("Link copiado!");
-      }
-    }
+        <table>
+            <thead><tr><th>Foto</th><th>Nome</th><th>Preço</th><th>Ação</th></tr></thead>
+            <tbody id="tabela-corpo"></tbody>
+        </table>
+    </div>
 
-    function filtrar(cat) {
-      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-      event.target.classList.add('active');
-      const f = cat === 'todos' ? produtosGerais : produtosGerais.filter(p => p.categoria === cat);
-      exibirProdutos(f);
-    }
+    <script>
+        const SUPABASE_URL = 'https://fxmoxqvtamsxqpabbade.supabase.co'; 
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ4bW94cXZ0YW1zeHFwYWJiYWRlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM0Njc3NTgsImV4cCI6MjA4OTA0Mzc1OH0.H2mn5rb2WChGw9yWMrdk3MpYIHH1N0hKZMeggOEiQBU';
+        const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    carregar();
-  </script>
+        async function salvar() {
+            const btn = document.getElementById('btn-salvar');
+            const arquivo = document.getElementById('arquivo-imagem').files[0];
+            if (!arquivo) return alert("Selecione a foto principal!");
+
+            btn.disabled = true; btn.innerText = "Enviando...";
+            try {
+                const nomeArq = `${Date.now()}_${arquivo.name}`;
+                await _supabase.storage.from('fotos-produtos').upload(nomeArq, arquivo);
+                const { data: link } = _supabase.storage.from('fotos-produtos').getPublicUrl(nomeArq);
+
+                const dados = {
+                    nome: document.getElementById('nome').value,
+                    categoria: document.getElementById('categoria').value,
+                    preco: document.getElementById('preco').value,
+                    descricao: document.getElementById('desc').value,
+                    fotos_extras: document.getElementById('fotos_extras').value,
+                    esgotado: document.getElementById('esgotado').checked,
+                    imagem_url: link.publicUrl
+                };
+
+                const { error } = await _supabase.from('Produtos').insert([dados]);
+                if (error) throw error;
+                alert("Peça cadastrada!"); location.reload();
+            } catch (e) { alert("Erro: " + e.message); btn.disabled = false; }
+        }
+
+        async function listarProdutos() {
+            const { data } = await _supabase.from('Produtos').select('*').order('id', { ascending: false });
+            const corpo = document.getElementById('tabela-corpo');
+            corpo.innerHTML = data.map(item => `
+                <tr>
+                    <td><img src="${item.imagem_url}" class="thumb"></td>
+                    <td>${item.nome} ${item.esgotado ? '<span class="badge badge-off">OFF</span>' : ''}</td>
+                    <td>R$ ${item.preco}</td>
+                    <td><button style="background:#ff4444; width:auto;" onclick="excluir(${item.id})">X</button></td>
+                </tr>
+            `).join('');
+        }
+        async function excluir(id) { if(confirm("Excluir?")) { await _supabase.from('Produtos').delete().eq('id', id); location.reload(); } }
+        async function logout() { await _supabase.auth.signOut(); window.location.href = "login.html"; }
+        listarProdutos();
+    </script>
 </body>
 </html>
