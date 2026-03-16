@@ -7,38 +7,40 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
     <style>
-        :root { --maroon: #1a0004; --gold: #C9A84C; --white: #ffffff; }
+        :root { --maroon: #1a0004; --gold: #C9A84C; --cream: #F5F0E8; --white: #ffffff; }
         body { background: #f8f8f8; font-family: 'Inter', sans-serif; margin: 0; display: flex; color: #222; opacity: 0; transition: opacity 0.4s; }
         .sidebar { width: 280px; background: var(--maroon); color: var(--gold); height: 100vh; padding: 40px 20px; position: fixed; z-index: 100; }
         .sidebar h2 { font-family: 'Playfair Display', serif; letter-spacing: 5px; text-align: center; border-bottom: 1px solid rgba(201,168,76,0.1); padding-bottom: 20px; margin-bottom: 30px; }
         .nav-link { display: block; padding: 15px; color: var(--gold); text-decoration: none; font-weight: 600; margin-bottom: 10px; cursor: pointer; border-radius: 8px; transition: 0.3s; }
-        .nav-link.active { background: var(--gold); color: var(--maroon); }
+        .nav-link:hover, .nav-link.active { background: var(--gold); color: var(--maroon); }
         .main { margin-left: 280px; flex: 1; padding: 50px; max-width: 1200px; }
         .section { display: none; }
         .section.active { display: block; }
-        .card { background: var(--white); padding: 30px; border-radius: 12px; box-shadow: 0 5px 30px rgba(0,0,0,0.03); margin-bottom: 20px; }
-        .photo-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 15px 0; }
-        .photo-slot { aspect-ratio: 1; background: #eee; border: 2px dashed #ccc; border-radius: 8px; display: flex; justify-content: center; align-items: center; cursor: pointer; overflow: hidden; position: relative; font-size: 10px; text-align: center; }
+        .card { background: var(--white); padding: 40px; border-radius: 12px; box-shadow: 0 5px 30px rgba(0,0,0,0.03); margin-bottom: 20px; }
+        .photo-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 15px; margin: 15px 0; height: 250px; }
+        .photo-slot { background: #f0f0f0; border: 2px dashed #ccc; border-radius: 12px; display: flex; justify-content: center; align-items: center; cursor: pointer; position: relative; overflow: hidden; color: #aaa; font-size: 12px; font-weight: bold; }
         .photo-slot img { width: 100%; height: 100%; object-fit: cover; position: absolute; }
-        input, textarea { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; }
-        .btn-save { background: var(--maroon); color: var(--gold); padding: 15px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; margin-top: 10px; }
-        .img-mini { width: 50px; height: 50px; object-fit: cover; border-radius: 4px; }
-        @media (max-width: 768px) { .sidebar { width: 100%; height: auto; position: relative; } .main { margin-left: 0; padding: 20px; } body { flex-direction: column; } }
+        input, textarea { width: 100%; padding: 16px; margin: 8px 0; border: 1px solid #e1e1e1; border-radius: 8px; font-size: 15px; box-sizing: border-box; outline: none; }
+        .btn-save { background: var(--maroon); color: var(--gold); padding: 20px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; text-transform: uppercase; letter-spacing: 2px; }
+        .img-mini { width: 60px; height: 60px; border-radius: 8px; object-fit: cover; }
+        @media (max-width: 768px) { body { flex-direction: column; } .sidebar { width: 100%; height: auto; position: relative; padding: 20px; } .main { margin-left: 0; padding: 20px; } .photo-grid { height: auto; grid-template-columns: 1fr 1fr; grid-auto-rows: 150px; } }
     </style>
 </head>
 <body>
+
     <div class="sidebar">
         <h2>ZEUS</h2>
         <div class="nav-link active" onclick="show('novo')">➕ NOVO PRODUTO</div>
         <div class="nav-link" onclick="show('estoque'); listar();">📝 MEU ESTOQUE</div>
         <div class="nav-link" onclick="show('config'); carregarWA();">⚙️ CONFIGURAÇÕES</div>
-        <div class="nav-link" onclick="logout()" style="color: #ff4444; margin-top: 20px;">SAIR</div>
+        <br>
+        <div class="nav-link" onclick="logout()" style="border: 1px solid #ff4444; color: #ff4444; text-align: center;">SAIR</div>
     </div>
 
     <div class="main">
         <div id="sec-novo" class="section active">
+            <h1>Cadastrar Peça</h1>
             <div class="card">
-                <h3>Novo Produto</h3>
                 <div class="photo-grid">
                     <div class="photo-slot" id="slot-0" onclick="document.getElementById('f0').click()"><input type="file" id="f0" accept="image/*" style="display:none" onchange="preview(this, 0)">+ Capa</div>
                     <div class="photo-slot" id="slot-1" onclick="document.getElementById('f1').click()"><input type="file" id="f1" accept="image/*" style="display:none" onchange="preview(this, 1)">+ Foto 2</div>
@@ -46,43 +48,35 @@
                     <div class="photo-slot" id="slot-3" onclick="document.getElementById('f3').click()"><input type="file" id="f3" accept="image/*" style="display:none" onchange="preview(this, 3)">+ Foto 4</div>
                 </div>
                 <input type="text" id="nnome" placeholder="Nome do Produto">
-                <input type="number" id="npreco" placeholder="Preço (Ex: 129.90)">
-                <input type="text" id="ncategoria" placeholder="Categoria (Ex: CAMISETAS)">
-                <textarea id="ndesc" placeholder="Descrição/Tamanhos"></textarea>
+                <input type="number" id="npreco" placeholder="Preço (R$)">
+                <input type="text" id="ncategoria" placeholder="Categoria (Ex: OVERSIZED)">
+                <textarea id="ndesc" rows="3" placeholder="Descrição"></textarea>
                 <button class="btn-save" id="btn-pub" onclick="salvarNovo()">PUBLICAR</button>
             </div>
         </div>
 
         <div id="sec-estoque" class="section">
-            <div class="card">
-                <table style="width:100%">
-                    <tbody id="lista-estoque"></tbody>
-                </table>
-            </div>
+            <h1>Meu Estoque</h1>
+            <div class="card"><table style="width:100%"><tbody id="lista-estoque"></tbody></table></div>
         </div>
 
         <div id="sec-config" class="section">
+            <h1>Configurações</h1>
             <div class="card">
-                <input type="text" id="wa-num" placeholder="WhatsApp (DDD + Número)">
-                <button class="btn-save" onclick="salvarWA()">SALVAR CONFIG</button>
+                <input type="text" id="wa-num" placeholder="Número WhatsApp (55...)">
+                <button class="btn-save" onclick="salvarWA()">ATUALIZAR CONTATO</button>
             </div>
         </div>
     </div>
 
     <script>
-        const _supabase = supabase.createClient('https://fxmoxqvtamsxqpabbade.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ4bW94cXZ0YW1zeHFwYWJiYWRlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM0Njc3NTgsImV4cCI6MjA4OTA0Mzc1OH0.H2mn5rb2WChGw9yWMrdk3MpYIHH1N0hKZMeggOEiQBU');
+        const _supabase = supabase.createClient('https://fxmoxqvtamsxqpabbade.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ4moxqvtamsxqpabbadeiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM0Njc3NTgsImV4cCI6MjA4OTA0Mzc1OH0.H2mn5rb2WChGw9yWMrdk3MpYIHH1N0hKZMeggOEiQBU');
         let fotosBase64 = ["", "", "", ""];
 
         async function checkAuth() {
             const { data: { session } } = await _supabase.auth.getSession();
             if (!session) { window.location.replace("login.html"); } 
             else { document.body.style.opacity = "1"; }
-        }
-
-        function show(id) {
-            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-            document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
-            document.getElementById('sec-'+id).classList.add('active');
         }
 
         function preview(input, index) {
@@ -99,32 +93,28 @@
 
         async function salvarNovo() {
             if(!fotosBase64[0]) return alert("Capa obrigatória!");
-            const extras = fotosBase64.slice(1).filter(f => f !== "").join(',');
+            const btn = document.getElementById('btn-pub');
+            btn.innerText = "ENVIANDO...";
             const { error } = await _supabase.from('Produtos').insert([{
                 nome: document.getElementById('nnome').value,
                 preco: parseFloat(document.getElementById('npreco').value),
                 categoria: document.getElementById('ncategoria').value.toUpperCase(),
                 imagem_url: fotosBase64[0],
-                fotos_extras: extras,
+                fotos_extras: fotosBase64.slice(1).filter(f => f !== "").join(','),
                 descricao: document.getElementById('ndesc').value
             }]);
-            if(!error) { alert("Sucesso!"); location.reload(); }
+            if(!error) { alert("Publicado!"); location.reload(); }
         }
 
         async function listar() {
             const { data } = await _supabase.from('Produtos').select('*').order('id', { ascending: false });
-            document.getElementById('lista-estoque').innerHTML = data.map(p => `
-                <tr>
-                    <td><img src="${p.imagem_url}" class="img-mini"></td>
-                    <td>${p.nome}</td>
-                    <td><button onclick="excluir(${p.id})">❌</button></td>
-                </tr>
-            `).join('');
+            document.getElementById('lista-estoque').innerHTML = data.map(p => `<tr><td><img src="${p.imagem_url}" class="img-mini"></td><td><b>${p.nome}</b></td><td><button onclick="excluir(${p.id})">Apagar</button></td></tr>`).join('');
         }
 
-        async function excluir(id) { if(confirm("Apagar?")) { await _supabase.from('Produtos').delete().eq('id', id); listar(); } }
-        async function salvarWA() { await _supabase.from('Configuracoes').update({ whaatsapp: document.getElementById('wa-num').value }).eq('id', 1); alert("OK!"); }
+        async function excluir(id) { if(confirm("Remover?")) { await _supabase.from('Produtos').delete().eq('id', id); listar(); } }
+        async function salvarWA() { await _supabase.from('Configuracoes').update({ whaatsapp: document.getElementById('wa-num').value.replace(/\D/g, '') }).eq('id', 1); alert("Atualizado!"); }
         async function carregarWA() { const { data } = await _supabase.from('Configuracoes').select('whaatsapp').eq('id', 1).single(); if(data) document.getElementById('wa-num').value = data.whaatsapp; }
+        function show(id) { document.querySelectorAll('.section').forEach(s => s.classList.remove('active')); document.getElementById('sec-'+id).classList.add('active'); }
         async function logout() { await _supabase.auth.signOut(); window.location.replace("login.html"); }
 
         checkAuth();
