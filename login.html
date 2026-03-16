@@ -8,63 +8,16 @@
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
     <style>
         :root { --maroon: #1a0004; --gold: #C9A84C; --white: #ffffff; }
-        body { 
-            background: var(--maroon); 
-            font-family: 'Inter', sans-serif; 
-            margin: 0; 
-            height: 100vh; 
-            display: flex; 
-            justify-content: center; 
-            align-items: center; 
-            color: var(--gold);
-        }
-        .login-card { 
-            background: rgba(255, 255, 255, 0.05); 
-            padding: 40px; 
-            border-radius: 15px; 
-            border: 1px solid rgba(201, 168, 76, 0.2);
-            text-align: center; 
-            width: 90%; 
-            max-width: 380px; 
-            backdrop-filter: blur(10px);
-        }
-        h2 { 
-            font-family: 'Playfair Display', serif; 
-            letter-spacing: 5px; 
-            margin-bottom: 30px; 
-            font-size: 28px;
-        }
-        input { 
-            width: 100%; 
-            padding: 15px; 
-            margin-bottom: 15px; 
-            border-radius: 8px; 
-            border: 1px solid rgba(201, 168, 76, 0.3); 
-            background: rgba(0,0,0,0.2); 
-            color: white; 
-            box-sizing: border-box;
-            outline: none;
-        }
-        input:focus { border-color: var(--gold); }
-        .btn-login { 
-            background: var(--gold); 
-            color: var(--maroon); 
-            width: 100%; 
-            padding: 15px; 
-            border: none; 
-            border-radius: 8px; 
-            font-weight: bold; 
-            text-transform: uppercase; 
-            letter-spacing: 2px; 
-            cursor: pointer; 
-            transition: 0.3s;
-        }
+        body { background: var(--maroon); font-family: 'Inter', sans-serif; margin: 0; height: 100vh; display: flex; justify-content: center; align-items: center; color: var(--gold); }
+        .login-card { background: rgba(255, 255, 255, 0.05); padding: 40px; border-radius: 15px; border: 1px solid rgba(201, 168, 76, 0.2); text-align: center; width: 90%; max-width: 380px; backdrop-filter: blur(10px); }
+        h2 { font-family: 'Playfair Display', serif; letter-spacing: 5px; margin-bottom: 30px; font-size: 28px; }
+        input { width: 100%; padding: 15px; margin-bottom: 15px; border-radius: 8px; border: 1px solid rgba(201, 168, 76, 0.3); background: rgba(0,0,0,0.2); color: white; box-sizing: border-box; outline: none; }
+        .btn-login { background: var(--gold); color: var(--maroon); width: 100%; padding: 15px; border: none; border-radius: 8px; font-weight: bold; text-transform: uppercase; letter-spacing: 2px; cursor: pointer; transition: 0.3s; }
         .btn-login:hover { filter: brightness(1.2); transform: scale(1.02); }
         .footer-link { margin-top: 20px; font-size: 12px; color: rgba(201, 168, 76, 0.6); text-decoration: none; display: block; }
     </style>
 </head>
 <body>
-
     <div class="login-card">
         <h2>ZEUS</h2>
         <input type="email" id="email" placeholder="E-mail de Administrador">
@@ -74,49 +27,21 @@
     </div>
 
     <script>
-        // Use as mesmas credenciais do seu projeto Supabase
-        const _supabase = supabase.createClient('https://fxmoxqvtamsxqpabbade.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ4moxqvtamsxqpabbadeiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM0Njc3NTgsImV4cCI6MjA4OTA0Mzc1OH0.H2mn5rb2WChGw9yWMrdk3MpYIHH1N0hKZMeggOEiQBU');
+        const _supabase = supabase.createClient('https://fxmoxqvtamsxqpabbade.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ4bW94cXZ0YW1zeHFwYWJiYWRlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM0Njc3NTgsImV4cCI6MjA4OTA0Mzc1OH0.H2mn5rb2WChGw9yWMrdk3MpYIHH1N0hKZMeggOEiQBU');
 
-        // Monitora o estado de login - Se logar, ele já redireciona
         _supabase.auth.onAuthStateChange((event, session) => {
-            if (event === 'SIGNED_IN') {
-                window.location.href = 'admin.html';
-            }
+            if (event === 'SIGNED_IN') { window.location.replace('admin.html'); }
         });
 
         async function entrar() {
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
             const btn = document.getElementById('btn-entrar');
-
-            if (!email || !password) {
-                alert("Preencha todos os campos!");
-                return;
-            }
-
+            if (!email || !password) { alert("Preencha todos os campos!"); return; }
             btn.innerText = "VERIFICANDO...";
-            btn.style.opacity = "0.7";
-
-            const { error } = await _supabase.auth.signInWithPassword({
-                email: email,
-                password: password,
-            });
-
-            if (error) {
-                alert("Acesso negado: " + error.message);
-                btn.innerText = "ACESSAR PAINEL";
-                btn.style.opacity = "1";
-            }
+            const { error } = await _supabase.auth.signInWithPassword({ email, password });
+            if (error) { alert("Erro: " + error.message); btn.innerText = "ACESSAR PAINEL"; }
         }
-
-        // Verifica se já está logado ao abrir a tela de login
-        async function checkSession() {
-            const { data: { session } } = await _supabase.auth.getSession();
-            if (session) {
-                window.location.href = 'admin.html';
-            }
-        }
-        checkSession();
     </script>
 </body>
 </html>
