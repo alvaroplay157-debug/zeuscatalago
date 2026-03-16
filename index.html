@@ -11,7 +11,6 @@
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { font-family: 'Inter', sans-serif; background: var(--maroon); color: var(--cream); overflow-x: hidden; }
 
-        /* Acesso Restrito Elegante */
         .admin-access { position: absolute; top: 20px; right: 30px; font-size: 10px; color: var(--gold); text-decoration: none; opacity: 0.5; transition: 0.4s; padding: 8px 15px; border: 1px solid transparent; border-radius: 50px; z-index: 100; letter-spacing: 2px; }
         .admin-access:hover { opacity: 1; border-color: var(--gold); background: rgba(201,168,76,0.1); }
 
@@ -20,8 +19,8 @@
         header p { letter-spacing: 8px; opacity: 0.5; font-size: 0.7rem; text-transform: uppercase; margin-top: 10px; }
 
         .filters { display: flex; justify-content: center; gap: 15px; margin: 40px 0; flex-wrap: wrap; padding: 0 20px; }
-        .f-btn { background: none; border: 1px solid rgba(201, 168, 76, 0.2); color: var(--gold); padding: 10px 25px; cursor: pointer; text-transform: uppercase; font-size: 10px; letter-spacing: 2px; border-radius: 50px; transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
-        .f-btn.active { background: var(--gold); color: var(--maroon); border-color: var(--gold); box-shadow: 0 0 20px rgba(201, 168, 76, 0.3); }
+        .f-btn { background: none; border: 1px solid rgba(201, 168, 76, 0.2); color: var(--gold); padding: 10px 25px; cursor: pointer; text-transform: uppercase; font-size: 10px; letter-spacing: 2px; border-radius: 50px; transition: 0.4s; }
+        .f-btn.active { background: var(--gold); color: var(--maroon); border-color: var(--gold); }
 
         .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 50px; max-width: 1400px; margin: 0 auto; padding: 20px 40px 100px; }
         .card { position: relative; animation: fadeIn 1s ease-out; }
@@ -44,22 +43,15 @@
         .price { display: block; margin-bottom: 25px; font-weight: 300; opacity: 0.8; font-size: 1.2rem; }
 
         .btn-wa { background: #25D366; color: white; padding: 20px; text-decoration: none; display: block; text-align: center; font-weight: 700; font-size: 11px; text-transform: uppercase; letter-spacing: 3px; transition: 0.4s; border-radius: 4px; }
-        .btn-wa:hover { filter: brightness(1.1); transform: translateY(-3px); box-shadow: 0 10px 20px rgba(37,211,102,0.2); }
+        .btn-wa:hover { filter: brightness(1.1); transform: translateY(-3px); }
         
-        /* WhatsApp Flutuante com Animação */
         .wa-float { position: fixed; bottom: 30px; right: 30px; background: #25D366; width: 65px; height: 65px; border-radius: 50%; display: flex; justify-content: center; align-items: center; z-index: 100; text-decoration: none; animation: pulse-wa 2s infinite; }
         .wa-float svg { width: 35px; height: 35px; fill: white; }
-        @keyframes pulse-wa {
-            0% { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.7); }
-            70% { box-shadow: 0 0 0 20px rgba(37, 211, 102, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0); }
-        }
+        @keyframes pulse-wa { 0% { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.7); } 70% { box-shadow: 0 0 0 20px rgba(37, 211, 102, 0); } 100% { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0); } }
 
-        /* Modal Guia de Medidas */
-        #modalMedidas { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); backdrop-filter: blur(10px); z-index: 2000; justify-content: center; align-items: center; opacity: 0; transition: 0.4s; }
-        #modalMedidas.active { display: flex; opacity: 1; }
-        .m-content { background: var(--maroon); border: 1px solid var(--gold); padding: 50px 30px; text-align: center; width: 90%; max-width: 450px; transform: scale(0.9); transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); border-radius: 8px; }
-        #modalMedidas.active .m-content { transform: scale(1); }
+        #modalMedidas { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); backdrop-filter: blur(10px); z-index: 2000; justify-content: center; align-items: center; }
+        #modalMedidas.active { display: flex; }
+        .m-content { background: var(--maroon); border: 1px solid var(--gold); padding: 50px 30px; text-align: center; width: 90%; max-width: 450px; border-radius: 8px; }
         .m-table { width: 100%; border-collapse: collapse; margin: 30px 0; }
         .m-table td { padding: 18px; border-bottom: 1px solid rgba(201, 168, 76, 0.1); font-size: 13px; color: var(--cream); letter-spacing: 2px; }
     </style>
@@ -94,7 +86,7 @@
     </div>
 
     <script>
-        const _supabase = supabase.createClient('https://fxmoxqvtamsxqpabbade.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ4bW94cXZ0YW1zeHFwYWJiYWRlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM0Njc3NTgsImV4cCI6MjA4OTA0Mzc1OH0.H2mn5rb2WChGw9yWMrdk3MpYIHH1N0hKZMeggOEiQBU');
+        const _supabase = supabase.createClient('https://fxmoxqvtamsxqpabbade.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ4moxqvtamsxqpabbadeiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM0Njc3NTgsImV4cCI6MjA4OTA0Mzc1OH0.H2mn5rb2WChGw9yWMrdk3MpYIHH1N0hKZMeggOEiQBU');
         let produtosGerais = [];
         let whatsAppConfig = "";
 
@@ -113,9 +105,12 @@
 
         function render(lista) {
             document.getElementById('grid').innerHTML = lista.map((p, idx) => {
-                const fotos = [p.imagem_url, ...(p.fotos_extras ? p.fotos_extras.split(',') : [])].filter(u => u.trim() !== "");
+                const fotos = [p.imagem_url, ...(p.fotos_extras ? p.fotos_extras.split(',') : [])].filter(u => u && u.trim() !== "");
                 const indicadores = fotos.map((_, i) => `<div class="ind-bar ${i===0?'active':''}" id="ind-${idx}-${i}"></div>`).join('');
                 const imagens = fotos.map(u => `<img src="${u.trim()}">`).join('');
+
+                // FUNÇÃO CORRIGIDA AQUI:
+                const linkWA = `https://wa.me/${whatsAppConfig}?text=${encodeURIComponent('Salve ZEUS! Tenho interesse no item: ' + p.nome)}`;
 
                 return `
                 <div class="card">
@@ -127,8 +122,8 @@
                     </div>
                     <div class="info">
                         <h3>${p.nome}</h3>
-                        <span class="price">R$ ${p.preco.toFixed(2)}</span>
-                        ${p.esgotado ? '<div class="btn-wa" style="background:#222; cursor:not-allowed">ESGOTADO</div>' : `<a href="https://wa.me/${whatsAppConfig}?text=Salve%20ZEUS!%20Tenho%20interesse%20no%20item:%20${encodeURIComponent(p.nome)}" class="btn-wa" target="_blank">COMPRAR AGORA</a>`}
+                        <span class="price">R$ ${parseFloat(p.preco).toFixed(2)}</span>
+                        ${p.esgotado ? '<div class="btn-wa" style="background:#222; cursor:not-allowed">ESGOTADO</div>' : `<a href="${linkWA}" class="btn-wa" target="_blank">COMPRAR AGORA</a>`}
                         <button class="f-btn" style="width:100%; margin-top:15px;" onclick="toggleMedidas()">📐 Guia de Medidas</button>
                     </div>
                 </div>`;
@@ -140,10 +135,7 @@
             if (total <= 1) return;
             slidePos[idx] = ((slidePos[idx] || 0) + dir + total) % total;
             document.getElementById(`wrap-${idx}`).style.transform = `translateX(-${slidePos[idx]*100}%)`;
-            for(let i=0; i<total; i++) {
-                const b = document.getElementById(`ind-${idx}-${i}`);
-                if(b) b.classList.toggle('active', i===slidePos[idx]);
-            }
+            document.querySelectorAll(`[id^="ind-${idx}-"]`).forEach((b, i) => b.classList.toggle('active', i === slidePos[idx]));
         }
 
         function filtrar(c, btn) {
@@ -154,8 +146,7 @@
 
         function toggleMedidas() {
             const m = document.getElementById('modalMedidas');
-            m.style.display = (m.style.display === 'flex') ? 'none' : 'flex';
-            setTimeout(() => m.classList.toggle('active'), 10);
+            m.classList.toggle('active');
         }
         init();
     </script>
