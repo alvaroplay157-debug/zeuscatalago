@@ -23,13 +23,7 @@
         .btn-save { background: var(--maroon); color: var(--gold); padding: 15px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; width: 100%; }
         .item-row { display: flex; align-items: center; padding: 15px; background: white; border-radius: 8px; margin-bottom: 10px; gap: 15px; border-left: 4px solid var(--gold); }
         .img-mini { width: 50px; height: 50px; border-radius: 4px; object-fit: cover; }
-        .btn-status { padding: 5px 10px; font-size: 10px; border-radius: 4px; border: 1px solid #ccc; cursor: pointer; }
-        .btn-status.out { background: var(--red); color: white; border: none; }
-        @media (max-width: 768px) {
-            body { flex-direction: column; }
-            .sidebar { width: 100%; height: auto; position: relative; padding: 10px; flex-direction: row; overflow-x: auto; }
-            .main { margin-left: 0; padding: 20px; }
-        }
+        @media (max-width: 768px) { body { flex-direction: column; } .sidebar { width: 100%; height: auto; position: relative; padding: 10px; flex-direction: row; overflow-x: auto; } .main { margin-left: 0; padding: 20px; } }
     </style>
 </head>
 <body>
@@ -58,23 +52,12 @@
                 <button class="btn-save" id="btn-pub" onclick="salvar()">SALVAR PRODUTO</button>
             </div>
         </div>
-
-        <div id="sec-estoque" class="section">
-            <h2>Estoque Atual</h2>
-            <div id="lista-estoque"></div>
-        </div>
-
-        <div id="sec-config" class="section">
-            <h2>Configurações</h2>
-            <div class="card">
-                <input type="text" id="wa-num" placeholder="WhatsApp (5583...)">
-                <button class="btn-save" onclick="salvarWA()">ATUALIZAR WHATSAPP</button>
-            </div>
-        </div>
+        <div id="sec-estoque" class="section"><h2>Estoque Atual</h2><div id="lista-estoque"></div></div>
+        <div id="sec-config" class="section"><h2>Configurações</h2><div class="card"><input type="text" id="wa-num" placeholder="WhatsApp (Ex: 55839...)"><button class="btn-save" onclick="salvarWA()">ATUALIZAR WHATSAPP</button></div></div>
     </div>
 
     <script>
-        const _supabase = supabase.createClient('https://fxmoxqvtamsxqpabbade.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ4bW94cXZ0YW1zeHFwYWJiYWRlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM0Njc3NTgsImV4cCI6MjA4OTA0Mzc1OH0.H2mn5rb2WChGw9yWMrdk3MpYIHH1N0hKZMeggOEiQBU');
+        const _supabase = supabase.createClient('https://fxmoxqvtamsxqpabbade.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ4moxqvtamsxqpabbadeiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM0Njc3NTgsImV4cCI6MjA4OTA0Mzc1OH0.H2mn5rb2WChGw9yWMrdk3MpYIHH1N0hKZMeggOEiQBU');
         let fotos = ["", "", "", ""];
 
         async function check() {
@@ -100,11 +83,9 @@
                 categoria: document.getElementById('ncategoria').value.toUpperCase(),
                 descricao: document.getElementById('ndesc').value,
                 imagem_url: fotos[0],
-                fotos_extras: fotos.slice(1).filter(f => f).join(',')
+                fotos_extras: fotos.slice(1).filter(f => f && f.length > 50).join(',')
             };
-
             if(!id && !dados.imagem_url) return alert("Adicione a foto de capa!");
-            
             let res;
             if(id) {
                 if(!fotos[0]) delete dados.imagem_url;
@@ -112,8 +93,7 @@
             } else {
                 res = await _supabase.from('Produtos').insert([dados]);
             }
-
-            if(!res.error) { alert("Sucesso!"); location.reload(); }
+            if(!res.error) { alert("Sucesso!"); location.reload(); } else { alert("Erro ao salvar: " + res.error.message); }
         }
 
         async function listar() {
@@ -123,7 +103,7 @@
                     <img src="${p.imagem_url}" class="img-mini">
                     <div style="flex:1"><b>${p.nome}</b><br><small>${p.categoria}</small></div>
                     <button class="btn-status ${p.esgotado?'out':''}" onclick="toggle(${p.id}, ${p.esgotado})">${p.esgotado?'ESGOTADO':'OK'}</button>
-                    <button onclick='editar(${JSON.stringify(p)})'>✏️</button>
+                    <button onclick='editar(${JSON.stringify(p).replace(/'/g, "&apos;")})'>✏️</button>
                     <button onclick="excluir(${p.id})" style="color:red">✖</button>
                 </div>
             `).join('');
@@ -137,7 +117,15 @@
             document.getElementById('npreco').value = p.preco;
             document.getElementById('ncategoria').value = p.categoria;
             document.getElementById('ndesc').value = p.descricao;
+            
+            fotos[0] = p.imagem_url;
             document.getElementById('s0').innerHTML = `<img src="${p.imagem_url}">`;
+            
+            const extras = p.fotos_extras ? p.fotos_extras.split(',') : [];
+            for(let i=1; i<=3; i++) {
+                fotos[i] = extras[i-1] || "";
+                document.getElementById('s'+i).innerHTML = fotos[i] ? `<img src="${fotos[i]}">` : `+ FOTO`;
+            }
         }
 
         async function toggle(id, st) { await _supabase.from('Produtos').update({ esgotado: !st }).eq('id', id); listar(); }
@@ -152,11 +140,11 @@
         }
         async function salvarWA() {
             const num = document.getElementById('wa-num').value.replace(/\D/g, '');
-            await _supabase.from('Configuracoes').update({ whaatsapp: num }).eq('id', 1);
-            alert("OK!");
+            const { error } = await _supabase.from('Configuracoes').upsert({ id: 1, whaatsapp: num });
+            if(!error) alert("WhatsApp Atualizado!"); else alert("Erro: " + error.message);
         }
         async function carregarWA() {
-            const { data } = await _supabase.from('Configuracoes').select('whaatsapp').eq('id', 1).single();
+            const { data } = await _supabase.from('Configuracoes').select('whaatsapp').eq('id', 1).maybeSingle();
             if(data) document.getElementById('wa-num').value = data.whaatsapp;
         }
         check();
