@@ -3,34 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ZEUS - Admin Mobile</title>
+    <title>ZEUS - Admin</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
     <style>
         :root { --maroon: #1a0004; --gold: #C9A84C; }
         body { background: #fdfdfd; font-family: 'Inter', sans-serif; margin: 0; display: flex; flex-direction: column; opacity: 0; transition: 0.5s; }
-        
         .sidebar { background: var(--maroon); padding: 15px; display: flex; gap: 10px; overflow-x: auto; position: sticky; top: 0; z-index: 100; }
         .nav-link { color: var(--gold); text-decoration: none; padding: 10px 15px; font-size: 11px; font-weight: bold; border-radius: 5px; white-space: nowrap; border: 1px solid rgba(201,168,76,0.2); }
         .nav-link.active { background: var(--gold); color: var(--maroon); }
-
         .main { padding: 20px; }
         .section { display: none; }
         .section.active { display: block; }
-
         .card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
         .photo-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 20px; }
-        .photo-slot { aspect-ratio: 1; background: #f0f0f0; border: 2px dashed #ddd; border-radius: 8px; display: flex; justify-content: center; align-items: center; overflow: hidden; position: relative; }
+        .photo-slot { aspect-ratio: 1; background: #f0f0f0; border: 2px dashed #ddd; border-radius: 8px; display: flex; justify-content: center; align-items: center; overflow: hidden; position: relative; cursor: pointer; }
         .photo-slot img { width: 100%; height: 100%; object-fit: cover; position: absolute; }
-
         input, textarea { width: 100%; padding: 15px; margin-bottom: 15px; border: 1px solid #eee; border-radius: 8px; font-size: 14px; box-sizing: border-box; }
-        .btn-save { background: var(--maroon); color: var(--gold); padding: 18px; border: none; width: 100%; border-radius: 8px; font-weight: bold; letter-spacing: 2px; }
-        
-        @media (min-width: 768px) {
-            body { flex-direction: row; }
-            .sidebar { width: 250px; height: 100vh; flex-direction: column; position: fixed; }
-            .main { margin-left: 250px; width: calc(100% - 250px); padding: 50px; }
-        }
+        .btn-save { background: var(--maroon); color: var(--gold); padding: 18px; border: none; width: 100%; border-radius: 8px; font-weight: bold; letter-spacing: 2px; cursor: pointer; }
+        @media (min-width: 768px) { body { flex-direction: row; } .sidebar { width: 250px; height: 100vh; flex-direction: column; position: fixed; } .main { margin-left: 250px; width: calc(100% - 250px); padding: 50px; } }
     </style>
 </head>
 <body>
@@ -40,47 +31,33 @@
         <div class="nav-link" onclick="show('config', this); carregarWA();">CONFIG</div>
         <div class="nav-link" onclick="logout()" style="color:red">SAIR</div>
     </div>
-
     <div class="main">
         <div id="sec-novo" class="section active">
             <div class="card">
                 <h3>Cadastrar Produto</h3>
                 <div class="photo-grid">
-                    <div class="photo-slot" onclick="document.getElementById('f0').click()"><input type="file" id="f0" style="display:none" onchange="preview(this, 0)" accept="image/*" id="slot-0">+ Capa</div>
-                    <div class="photo-slot" onclick="document.getElementById('f1').click()"><input type="file" id="f1" style="display:none" onchange="preview(this, 1)" accept="image/*" id="slot-1">+ 2</div>
-                    <div class="photo-slot" onclick="document.getElementById('f2').click()"><input type="file" id="f2" style="display:none" onchange="preview(this, 2)" accept="image/*" id="slot-2">+ 3</div>
-                    <div class="photo-slot" onclick="document.getElementById('f3').click()"><input type="file" id="f3" style="display:none" onchange="preview(this, 3)" accept="image/*" id="slot-3">+ 4</div>
+                    <div class="photo-slot" onclick="document.getElementById('f0').click()"><input type="file" id="f0" style="display:none" onchange="preview(this, 0)" accept="image/*">+ Capa</div>
+                    <div class="photo-slot" onclick="document.getElementById('f1').click()"><input type="file" id="f1" style="display:none" onchange="preview(this, 1)" accept="image/*">+ 2</div>
+                    <div class="photo-slot" onclick="document.getElementById('f2').click()"><input type="file" id="f2" style="display:none" onchange="preview(this, 2)" accept="image/*">+ 3</div>
+                    <div class="photo-slot" onclick="document.getElementById('f3').click()"><input type="file" id="f3" style="display:none" onchange="preview(this, 3)" accept="image/*">+ 4</div>
                 </div>
                 <input type="text" id="nnome" placeholder="Nome">
-                <input type="number" id="npreco" placeholder="Preço (129.90)">
+                <input type="number" id="npreco" placeholder="Preço (ex: 129.90)">
                 <input type="text" id="ncategoria" placeholder="Categoria">
                 <textarea id="ndesc" placeholder="Descrição"></textarea>
                 <button class="btn-save" id="btn-pub" onclick="salvarNovo()">PUBLICAR</button>
             </div>
         </div>
-
-        <div id="sec-estoque" class="section">
-            <div id="lista-estoque"></div>
-        </div>
-
-        <div id="sec-config" class="section">
-            <div class="card">
-                <input type="text" id="wa-num" placeholder="WhatsApp (5583...)">
-                <button class="btn-save" onclick="salvarWA()">SALVAR</button>
-            </div>
-        </div>
+        <div id="sec-estoque" class="section"><div id="lista-estoque"></div></div>
+        <div id="sec-config" class="section"><div class="card"><input type="text" id="wa-num" placeholder="WhatsApp (5583...)"><button class="btn-save" onclick="salvarWA()">SALVAR</button></div></div>
     </div>
-
     <script>
-        const _supabase = supabase.createClient('https://fxmoxqvtamsxqpabbade.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ4moxqvtamsxqpabbadeiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM0Njc3NTgsImV4cCI6MjA4OTA0Mzc1OH0.H2mn5rb2WChGw9yWMrdk3MpYIHH1N0hKZMeggOEiQBU');
+        const _supabase = supabase.createClient('https://fxmoxqvtamsxqpabbade.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ4bW94cXZ0YW1zeHFwYWJiYWRlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM0Njc3NTgsImV4cCI6MjA4OTA0Mzc1OH0.H2mn5rb2WChGw9yWMrdk3MpYIHH1N0hKZMeggOEiQBU');
         let fotos = ["", "", "", ""];
-
         async function check() {
             const { data: { session } } = await _supabase.auth.getSession();
-            if (!session) window.location.replace("login.html");
-            else document.body.style.opacity = "1";
+            if (!session) window.location.replace("login.html"); else document.body.style.opacity = "1";
         }
-
         function preview(input, i) {
             const f = input.files[0];
             const reader = new FileReader();
@@ -90,7 +67,6 @@
             };
             reader.readAsDataURL(f);
         }
-
         async function salvarNovo() {
             const { error } = await _supabase.from('Produtos').insert([{
                 nome: document.getElementById('nnome').value,
@@ -100,16 +76,14 @@
                 fotos_extras: fotos.slice(1).filter(x => x).join(','),
                 descricao: document.getElementById('ndesc').value
             }]);
-            if(!error) alert("OK!");
+            if(!error) { alert("Produto publicado!"); location.reload(); } else { alert("Erro ao salvar."); }
         }
-
         function show(id, btn) {
             document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
             document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
             document.getElementById('sec-'+id).classList.add('active');
             btn.classList.add('active');
         }
-
         async function logout() { await _supabase.auth.signOut(); window.location.replace("login.html"); }
         check();
     </script>
