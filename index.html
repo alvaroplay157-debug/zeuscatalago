@@ -7,103 +7,84 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
-        :root { --maroon: #1a0004; --gold: #C9A84C; --cream: #F5F0E8; --white: #ffffff; }
+        :root { --maroon: #1a0004; --gold: #C9A84C; --cream: #F5F0E8; }
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { font-family: 'Inter', sans-serif; background: var(--maroon); color: var(--cream); overflow-x: hidden; }
         header { height: 35vh; display: flex; flex-direction: column; justify-content: center; align-items: center; background: radial-gradient(circle at center, #2a0006 0%, #1a0004 100%); }
-        header h1 { font-family: 'Playfair Display', serif; font-size: clamp(3.5rem, 15vw, 7rem); color: var(--gold); letter-spacing: 15px; margin-bottom: 10px; }
-        header p { letter-spacing: 8px; opacity: 0.6; font-size: 0.7rem; text-transform: uppercase; }
-        .container { max-width: 1200px; margin: 0 auto; padding: 0 20px 60px; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 40px; justify-content: center; margin-top: 40px; }
-        .filters { display: flex; justify-content: center; gap: 15px; margin: 30px 0; padding: 10px; flex-wrap: wrap; }
-        .f-btn { background: none; border: 1px solid rgba(201, 168, 76, 0.3); color: var(--gold); padding: 10px 25px; cursor: pointer; font-size: 11px; border-radius: 50px; transition: 0.3s; text-transform: uppercase; }
+        header h1 { font-family: 'Playfair Display', serif; font-size: clamp(3.5rem, 15vw, 7rem); color: var(--gold); letter-spacing: 15px; }
+        .filters { display: flex; justify-content: center; gap: 10px; margin: 20px 0; flex-wrap: wrap; }
+        .f-btn { background: none; border: 1px solid var(--gold); color: var(--gold); padding: 8px 18px; border-radius: 20px; cursor: pointer; font-size: 11px; text-transform: uppercase; }
         .f-btn.active { background: var(--gold); color: var(--maroon); }
-        .card { position: relative; background: rgba(255,255,255,0.02); border-radius: 15px; padding-bottom: 20px; }
-        .img-container { width: 100%; aspect-ratio: 3/4; position: relative; overflow: hidden; border-radius: 12px; background: #000; cursor: pointer; }
-        .slider-wrapper { display: flex; width: 100%; height: 100%; transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1); }
+        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; }
+        .card { background: rgba(255,255,255,0.03); border-radius: 12px; overflow: hidden; position: relative; border: 1px solid rgba(201,168,76,0.1); }
+        .img-container { width: 100%; aspect-ratio: 3/4; overflow: hidden; position: relative; cursor: pointer; background: #000; }
+        .slider-wrapper { display: flex; width: 100%; height: 100%; transition: transform 0.4s ease; }
         .slider-wrapper img { width: 100%; height: 100%; object-fit: cover; flex-shrink: 0; }
-        .slide-indicators { position: absolute; top: 15px; left: 15px; right: 15px; display: flex; gap: 6px; z-index: 10; }
-        .ind-bar { height: 3px; flex: 1; background: rgba(255,255,255,0.15); border-radius: 2px; }
-        .ind-bar.active { background: var(--gold); }
-        .info { padding: 25px 15px; }
-        .info h3 { font-family: 'Playfair Display'; color: var(--gold); font-size: 1.6rem; margin-bottom: 5px; }
-        .price { display: block; font-size: 1.1rem; margin-bottom: 20px; opacity: 0.8; }
-        .btn-main { background: #25D366; color: white; padding: 18px; text-decoration: none; display: block; text-align: center; font-weight: 700; border-radius: 8px; font-size: 12px; letter-spacing: 2px; }
-        .secondary-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
-        .btn-sec { background: rgba(255,255,255,0.05); border: 1px solid rgba(201, 168, 76, 0.2); color: var(--gold); padding: 12px; font-size: 10px; text-align: center; cursor: pointer; border-radius: 6px; }
-        .esgotado-label { position: absolute; top: 20px; left: 20px; background: #ff4444; color: white; padding: 6px 15px; font-size: 10px; font-weight: bold; border-radius: 4px; z-index: 20; }
-        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); display: none; justify-content: center; align-items: center; z-index: 1000; }
-        .modal-content { background: white; padding: 20px; border-radius: 15px; max-width: 90%; text-align: center; color: #222; }
-        .modal-content img { width: 100%; border-radius: 10px; }
+        .ind-container { position: absolute; top: 10px; left: 10px; right: 10px; display: flex; gap: 5px; }
+        .ind { height: 3px; flex: 1; background: rgba(255,255,255,0.2); border-radius: 2px; }
+        .ind.active { background: var(--gold); }
+        .info { padding: 20px; text-align: center; }
+        .price { color: var(--gold); font-size: 1.3rem; font-weight: bold; margin: 10px 0; display: block; }
+        .btn-wa { background: #25D366; color: white; text-decoration: none; padding: 15px; display: block; border-radius: 8px; font-weight: bold; margin-bottom: 10px; }
+        .btn-med { color: var(--gold); background: none; border: 1px solid rgba(201,168,76,0.3); padding: 10px; width: 100%; border-radius: 8px; cursor: pointer; }
+        .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.9); display: none; justify-content: center; align-items: center; z-index: 1000; }
+        .modal img { max-width: 90%; border-radius: 10px; }
     </style>
 </head>
 <body>
-    <header><h1>ZEUS</h1><p>Urban Luxury</p></header>
+    <header><h1>ZEUS</h1></header>
     <div class="filters" id="filtros"></div>
-    <div class="container"><div class="grid" id="grid"></div></div>
-    <div class="modal" id="modalMedidas" onclick="this.style.display='none'"><div class="modal-content"><h2 style="font-family:'Playfair Display';margin-bottom:15px">Tabela de Medidas</h2><img src="https://down-br.img.susercontent.com/file/br-11134207-7qukw-ljv7n9m63m0995"></div></div>
+    <div class="container"><div id="grid" class="grid"></div></div>
+    <div id="m-med" class="modal" onclick="this.style.display='none'"><img src="https://down-br.img.susercontent.com/file/br-11134207-7qukw-ljv7n9m63m0995"></div>
 
     <script>
         const _supabase = supabase.createClient('https://fxmoxqvtamsxqpabbade.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ4moxqvtamsxqpabbadeiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM0Njc3NTgsImV4cCI6MjA4OTA0Mzc1OH0.H2mn5rb2WChGw9yWMrdk3MpYIHH1N0hKZMeggOEiQBU');
-        let produtosGerais = [], whatsAppConfig = "";
+        let produtosGerais = [], tel = "";
 
         async function init() {
-            try {
-                const { data: cfg } = await _supabase.from('Configuracoes').select('whaatsapp').eq('id', 1).maybeSingle();
-                whatsAppConfig = cfg ? cfg.whaatsapp : "";
-                const { data, error } = await _supabase.from('Produtos').select('*').order('id', { ascending: false });
-                if (error) throw error;
-                produtosGerais = data || [];
-                render(produtosGerais);
-                const cats = ['TODOS', ...new Set(produtosGerais.map(p => p.categoria).filter(c => c))];
-                document.getElementById('filtros').innerHTML = cats.map(c => `<button class="f-btn ${c==='TODOS'?'active':''}" onclick="filtrar('${c}', this)">${c}</button>`).join('');
-            } catch (err) { console.error(err); }
+            const { data: cfg } = await _supabase.from('Configuracoes').select('*').eq('id', 1).maybeSingle();
+            tel = cfg ? cfg.whaatsapp : "";
+            const { data } = await _supabase.from('Produtos').select('*').order('id', { ascending: false });
+            produtosGerais = data || [];
+            render(produtosGerais);
+            const cats = ['TODOS', ...new Set(produtosGerais.map(p => p.categoria))];
+            document.getElementById('filtros').innerHTML = cats.map(c => `<button class="f-btn" onclick="filtrar('${c}', this)">${c}</button>`).join('');
         }
 
         function render(lista) {
-            const grid = document.getElementById('grid');
-            grid.innerHTML = lista.map((p, idx) => {
-                const extras = p.fotos_extras ? p.fotos_extras.split(',').filter(f => f.trim().length > 50) : [];
-                const fotos = [p.imagem_url, ...extras].filter(f => f && f.length > 50);
-                const inds = fotos.map((_, i) => `<div class="ind-bar ${i===0?'active':''}" id="ind-${idx}-${i}"></div>`).join('');
-                const imgs = fotos.map((f, i) => `<img src="${f}" ${i > 0 ? 'loading="lazy"' : ''} onerror="this.src='https://via.placeholder.com/400x533?text=Erro+na+Imagem'">`).join('');
+            document.getElementById('grid').innerHTML = lista.map((p, idx) => {
+                const fotos = [p.imagem_url, ...(p.fotos_extras ? p.fotos_extras.split(',') : [])].filter(f => f.length > 50);
                 return `
                 <div class="card">
-                    ${p.esgotado ? '<div class="esgotado-label">ESGOTADO</div>' : ''}
-                    <div class="img-container" onclick="nextPhoto(${idx}, ${fotos.length})">
-                        <div class="slide-indicators">${inds}</div>
-                        <div class="slider-wrapper" id="wrap-${idx}">${imgs}</div>
+                    <div class="img-container" onclick="next(${idx}, ${fotos.length})">
+                        <div class="ind-container">${fotos.map((_, i) => `<div class="ind ${i===0?'active':''}" id="ind-${idx}-${i}"></div>`).join('')}</div>
+                        <div class="slider-wrapper" id="wrap-${idx}">
+                            ${fotos.map(f => `<img src="${f}">`).join('')}
+                        </div>
                     </div>
                     <div class="info">
-                        <h3>${p.nome}</h3><span class="price">R$ ${parseFloat(p.preco).toFixed(2)}</span>
-                        <a href="https://wa.me/${whatsAppConfig}?text=Tenho interesse no produto: ${encodeURIComponent(p.nome)}" class="btn-main" ${p.esgotado?'style="background:#444;pointer-events:none"':''}>${p.esgotado?'INDISPONÍVEL':'COMPRAR VIA WHATSAPP'}</a>
-                        <div class="secondary-actions">
-                            <div class="btn-sec" onclick="document.getElementById('modalMedidas').style.display='flex'">📏 MEDIDAS</div>
-                            <div class="btn-sec" onclick="compartilhar('${p.nome}')">🔗 PARTILHAR</div>
-                        </div>
+                        <h3>${p.nome}</h3>
+                        <span class="price">R$ ${parseFloat(p.preco).toFixed(2)}</span>
+                        <a href="https://wa.me/${tel}?text=Interesse: ${p.nome}" class="btn-wa">COMPRAR VIA WHATSAPP</a>
+                        <button class="btn-med" onclick="document.getElementById('m-med').style.display='flex'">📏 TABELA DE MEDIDAS</button>
                     </div>
                 </div>`;
             }).join('');
         }
 
-        let slidePos = {};
-        function nextPhoto(idx, total) {
+        let pos = {};
+        function next(idx, total) {
             if (total <= 1) return;
-            slidePos[idx] = ((slidePos[idx] || 0) + 1) % total;
-            document.getElementById(`wrap-${idx}`).style.transform = `translateX(-${slidePos[idx]*100}%)`;
-            document.querySelectorAll(`[id^="ind-${idx}-"]`).forEach((b, i) => b.classList.toggle('active', i === slidePos[idx]));
+            pos[idx] = ((pos[idx] || 0) + 1) % total;
+            document.getElementById(`wrap-${idx}`).style.transform = `translateX(-${pos[idx]*100}%)`;
+            document.querySelectorAll(`[id^="ind-${idx}-"]`).forEach((el, i) => el.classList.toggle('active', i === pos[idx]));
         }
 
         function filtrar(c, btn) {
             document.querySelectorAll('.f-btn').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
             render(c === 'TODOS' ? produtosGerais : produtosGerais.filter(p => p.categoria === c));
-        }
-
-        function compartilhar(nome) {
-            const url = window.location.href;
-            if (navigator.share) navigator.share({ title: 'ZEUS', text: 'Confira esse produto: ' + nome, url: url });
-            else { navigator.clipboard.writeText(url); alert("Link copiado!"); }
         }
         init();
     </script>
