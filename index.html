@@ -10,97 +10,24 @@
         :root { --maroon: #1a0004; --gold: #C9A84C; --cream: #F5F0E8; }
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { font-family: 'Inter', sans-serif; background: var(--maroon); color: var(--cream); overflow-x: hidden; }
-
         .admin-access { position: absolute; top: 20px; right: 30px; font-size: 10px; color: var(--gold); text-decoration: none; opacity: 0.5; z-index: 100; letter-spacing: 2px; }
-
         header { height: 30vh; display: flex; flex-direction: column; justify-content: center; align-items: center; background: radial-gradient(circle at center, #2a0006 0%, #1a0004 100%); }
         header h1 { font-family: 'Playfair Display', serif; font-size: clamp(3rem, 12vw, 6rem); color: var(--gold); letter-spacing: 15px; }
         header p { letter-spacing: 5px; opacity: 0.5; font-size: 0.6rem; text-transform: uppercase; }
-
-        .filters { display: flex; justify-content: center; gap: 10px; margin: 20px 0; overflow-x: auto; padding: 10px 20px; white-space: nowrap; }
-        .f-btn { background: none; border: 1px solid rgba(201, 168, 76, 0.3); color: var(--gold); padding: 8px 20px; cursor: pointer; font-size: 10px; border-radius: 50px; }
+        .filters { display: flex; justify-content: center; gap: 10px; margin: 20px 0; overflow-x: auto; padding: 10px 20px; }
+        .f-btn { background: none; border: 1px solid rgba(201, 168, 76, 0.3); color: var(--gold); padding: 8px 20px; cursor: pointer; font-size: 10px; border-radius: 50px; white-space: nowrap; }
         .f-btn.active { background: var(--gold); color: var(--maroon); }
-
         .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(100%, 1fr)); gap: 30px; padding: 20px; }
         @media (min-width: 768px) { .grid { grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); } }
-
-        .img-container { width: 100%; aspect-ratio: 3/4; position: relative; overflow: hidden; border-radius: 8px; background: #000; }
+        .card { position: relative; }
+        .img-container { width: 100%; aspect-ratio: 3/4; position: relative; overflow: hidden; border-radius: 8px; background: #000; cursor: pointer; }
         .slider-wrapper { display: flex; width: 100%; height: 100%; transition: transform 0.5s ease; }
         .slider-wrapper img { width: 100%; height: 100%; object-fit: cover; flex-shrink: 0; }
-        
-        .slide-indicators { position: absolute; bottom: 15px; left: 15px; right: 15px; display: flex; gap: 5px; }
+        .slide-indicators { position: absolute; bottom: 15px; left: 15px; right: 15px; display: flex; gap: 5px; z-index: 10; }
         .ind-bar { height: 2px; flex: 1; background: rgba(255,255,255,0.2); }
         .ind-bar.active { background: var(--gold); }
-
-        .info { padding: 20px 0; text-align: left; }
+        .badge-out { position: absolute; top: 20px; left: 20px; background: var(--red); color: white; padding: 5px 15px; font-size: 10px; font-weight: bold; border-radius: 4px; z-index: 20; background: #ff4444; }
+        .info { padding: 20px 0; }
         .info h3 { font-family: 'Playfair Display'; color: var(--gold); font-size: 1.4rem; }
         .price { display: block; margin: 5px 0 20px; opacity: 0.7; }
-
-        .btn-wa { background: #25D366; color: white; padding: 18px; text-decoration: none; display: block; text-align: center; font-weight: 700; font-size: 11px; letter-spacing: 2px; border-radius: 8px; }
-        
-        .wa-float { position: fixed; bottom: 20px; right: 20px; background: #25D366; width: 60px; height: 60px; border-radius: 50%; display: flex; justify-content: center; align-items: center; z-index: 100; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
-        .wa-float svg { width: 30px; height: 30px; fill: white; }
-    </style>
-</head>
-<body>
-    <a href="login.html" class="admin-access">ACESSO</a>
-    <header><h1>ZEUS</h1><p>Urban Luxury</p></header>
-    <div class="filters" id="filtros"></div>
-    <div class="grid" id="grid"></div>
-    <a href="#" id="wa-global" class="wa-float" target="_blank"><svg viewBox="0 0 24 24"><path d="M12.031 0C5.385 0 0 5.385 0 12.031c0 2.645.856 5.105 2.308 7.156L.548 24l5.05-1.745c1.956 1.258 4.269 1.982 6.74 1.982 6.645 0 12.031-5.385 12.031-12.031S18.676 0 12.031 0zm3.84 17.555c-.21.583-1.222 1.118-1.7 1.183-.448.058-1.025.103-3.235-.806-3.08-1.267-5.06-4.42-5.215-4.629-.153-.21-1.248-1.656-1.248-3.159 0-1.503.784-2.245 1.055-2.535.272-.29.593-.362.793-.362.199 0 .397.002.576.01.199.011.464-.078.724.55.27.653.916 2.227.996 2.387.08.159.133.348.026.558-.106.21-.159.342-.319.531-.159.19-.333.421-.476.568-.159.158-.33.328-.148.64.182.312.809 1.332 1.737 2.158 1.2.1.066 1.57.348 1.86.533.29.19.463.095.632-.211.533-.746 1.257-1.42 1.332-1.494.08-.725-.306-.994-.436-1.29-.129-.29-.548-2.693-.632-3.012-.084-.319-.17-.272-.236-.272l-.604-.01z"/></svg></a>
-
-    <script>
-        const _supabase = supabase.createClient('https://fxmoxqvtamsxqpabbade.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ4moxqvtamsxqpabbadeiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM0Njc3NTgsImV4cCI6MjA4OTA0Mzc1OH0.H2mn5rb2WChGw9yWMrdk3MpYIHH1N0hKZMeggOEiQBU');
-        let produtosGerais = [];
-        let whatsAppConfig = "";
-
-        async function init() {
-            const { data: cfg } = await _supabase.from('Configuracoes').select('whaatsapp').eq('id', 1).single();
-            whatsAppConfig = cfg ? cfg.whaatsapp.replace(/\D/g, '') : "";
-            document.getElementById('wa-global').href = `https://wa.me/${whatsAppConfig}`;
-
-            const { data } = await _supabase.from('Produtos').select('*').order('id', { ascending: false });
-            produtosGerais = data;
-            render(data);
-            
-            const cats = ['TODOS', ...new Set(data.map(p => p.categoria).filter(c => c))];
-            document.getElementById('filtros').innerHTML = cats.map(c => `<button class="f-btn ${c==='TODOS'?'active':''}" onclick="filtrar('${c}', this)">${c}</button>`).join('');
-        }
-
-        function render(lista) {
-            document.getElementById('grid').innerHTML = lista.map((p, idx) => {
-                const fotos = [p.imagem_url, ...(p.fotos_extras ? p.fotos_extras.split(',') : [])].filter(u => u);
-                const inds = fotos.map((_, i) => `<div class="ind-bar ${i===0?'active':''}" id="ind-${idx}-${i}"></div>`).join('');
-                const imgs = fotos.map(u => `<img src="${u}">`).join('');
-                return `
-                <div class="card">
-                    <div class="img-container" onclick="nextPhoto(${idx}, ${fotos.length})">
-                        <div class="slide-indicators">${inds}</div>
-                        <div class="slider-wrapper" id="wrap-${idx}">${imgs}</div>
-                    </div>
-                    <div class="info">
-                        <h3>${p.nome}</h3>
-                        <span class="price">R$ ${parseFloat(p.preco).toFixed(2)}</span>
-                        <a href="https://wa.me/${whatsAppConfig}?text=Interesse:%20${encodeURIComponent(p.nome)}" class="btn-wa" target="_blank">COMPRAR AGORA</a>
-                    </div>
-                </div>`;
-            }).join('');
-        }
-
-        let slidePos = {};
-        function nextPhoto(idx, total) {
-            if (total <= 1) return;
-            slidePos[idx] = ((slidePos[idx] || 0) + 1) % total;
-            document.getElementById(`wrap-${idx}`).style.transform = `translateX(-${slidePos[idx]*100}%)`;
-            document.querySelectorAll(`[id^="ind-${idx}-"]`).forEach((b, i) => b.classList.toggle('active', i === slidePos[idx]));
-        }
-
-        function filtrar(c, btn) {
-            document.querySelectorAll('.f-btn').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            render(c === 'TODOS' ? produtosGerais : produtosGerais.filter(p => p.categoria === c));
-        }
-        init();
-    </script>
-</body>
-</html>
+        .btn-wa
