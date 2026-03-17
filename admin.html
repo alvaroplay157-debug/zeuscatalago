@@ -2,71 +2,74 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ZEUS - Admin Master</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
     <style>
-        :root { --maroon: #1a0004; --gold: #C9A84C; --white: #ffffff; --red: #ff4444; }
-        body { background: #f4f4f4; font-family: 'Inter', sans-serif; margin: 0; display: flex; color: #222; opacity: 0; transition: 0.4s; }
-        .sidebar { width: 260px; background: var(--maroon); color: var(--gold); height: 100vh; padding: 30px 15px; position: fixed; display: flex; flex-direction: column; }
-        .nav-link { display: block; padding: 12px 15px; color: var(--gold); text-decoration: none; font-weight: 600; font-size: 13px; margin-bottom: 8px; cursor: pointer; border-radius: 6px; }
-        .nav-link.active, .nav-link:hover { background: var(--gold); color: var(--maroon); }
-        .main { margin-left: 260px; flex: 1; padding: 40px; }
+        :root { --maroon: #1a0004; --gold: #C9A84C; }
+        body { font-family: sans-serif; background: #f4f4f4; margin: 0; display: flex; }
+        .sidebar { width: 250px; background: var(--maroon); color: var(--gold); height: 100vh; padding: 20px; position: fixed; }
+        .nav-link { display: block; padding: 15px; color: var(--gold); text-decoration: none; cursor: pointer; border-radius: 5px; margin-bottom: 10px; border: 1px solid rgba(201,168,76,0.2); }
+        .nav-link.active { background: var(--gold); color: var(--maroon); }
+        .main { margin-left: 290px; padding: 40px; flex: 1; }
         .section { display: none; }
         .section.active { display: block; }
-        .card { background: var(--white); padding: 25px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); }
-        .photo-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 20px; }
-        .photo-slot { aspect-ratio: 1; background: #eee; border-radius: 8px; display: flex; justify-content: center; align-items: center; cursor: pointer; position: relative; overflow: hidden; font-size: 9px; color: #888; border: 1px dashed #ccc; }
-        .photo-slot img { width: 100%; height: 100%; object-fit: cover; position: absolute; }
-        input, textarea { width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; }
-        .btn-save { background: var(--maroon); color: var(--gold); padding: 15px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; width: 100%; }
-        .item-row { display: flex; align-items: center; padding: 15px; background: white; border-radius: 8px; margin-bottom: 10px; gap: 15px; border-left: 4px solid var(--gold); }
-        .img-mini { width: 50px; height: 50px; border-radius: 4px; object-fit: cover; }
-        @media (max-width: 768px) { body { flex-direction: column; } .sidebar { width: 100%; height: auto; position: relative; padding: 10px; flex-direction: row; overflow-x: auto; } .main { margin-left: 0; padding: 20px; } }
+        .card { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); max-width: 600px; }
+        .grid-fotos { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 20px; }
+        .slot { aspect-ratio: 1; background: #eee; border: 1px dashed #ccc; display: flex; justify-content: center; align-items: center; cursor: pointer; position: relative; overflow: hidden; font-size: 10px; }
+        .slot img { width: 100%; height: 100%; object-fit: cover; position: absolute; }
+        input, textarea { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; }
+        .btn-acao { background: var(--maroon); color: var(--gold); padding: 15px; border: none; width: 100%; font-weight: bold; cursor: pointer; border-radius: 6px; }
+        .item { display: flex; align-items: center; background: white; padding: 15px; margin-bottom: 10px; border-radius: 8px; gap: 15px; }
+        .item img { width: 60px; height: 60px; object-fit: cover; border-radius: 5px; }
     </style>
 </head>
 <body>
     <div class="sidebar">
-        <div class="nav-link active" onclick="show('novo', this)">➕ NOVO</div>
-        <div class="nav-link" onclick="show('estoque', this); listar();">📦 ESTOQUE</div>
-        <div class="nav-link" onclick="show('config', this); carregarWA();">⚙️ AJUSTES</div>
-        <a href="index.html" class="nav-link" style="margin-top:auto; border: 1px solid var(--gold)">🏛️ VER LOJA</a>
+        <h2>ZEUS ADMIN</h2>
+        <div class="nav-link active" onclick="show('novo', this)">➕ NOVO PRODUTO</div>
+        <div class="nav-link" onclick="show('estoque', this); listar()">📦 ESTOQUE</div>
+        <div class="nav-link" onclick="show('config', this); carregarWA()">⚙️ CONFIGURAÇÕES</div>
+        <a href="index.html" class="nav-link">🏛️ VER LOJA</a>
     </div>
 
     <div class="main">
         <div id="sec-novo" class="section active">
-            <h2 id="form-title">Cadastrar Peça</h2>
+            <h2 id="titulo">Cadastrar Produto</h2>
             <div class="card">
-                <div class="photo-grid">
-                    <div class="photo-slot" onclick="document.getElementById('f0').click()" id="s0"><input type="file" id="f0" style="display:none" onchange="preview(this, 0)">+ CAPA</div>
-                    <div class="photo-slot" onclick="document.getElementById('f1').click()" id="s1"><input type="file" id="f1" style="display:none" onchange="preview(this, 1)">+ FOTO</div>
-                    <div class="photo-slot" onclick="document.getElementById('f2').click()" id="s2"><input type="file" id="f2" style="display:none" onchange="preview(this, 2)">+ FOTO</div>
-                    <div class="photo-slot" onclick="document.getElementById('f3').click()" id="s3"><input type="file" id="f3" style="display:none" onchange="preview(this, 3)">+ FOTO</div>
+                <div class="grid-fotos">
+                    <div class="slot" onclick="document.getElementById('f0').click()" id="s0"><input type="file" id="f0" hidden onchange="pre(this,0)">CAPA</div>
+                    <div class="slot" onclick="document.getElementById('f1').click()" id="s1"><input type="file" id="f1" hidden onchange="pre(this,1)">FOTO 2</div>
+                    <div class="slot" onclick="document.getElementById('f2').click()" id="s2"><input type="file" id="f2" hidden onchange="pre(this,2)">FOTO 3</div>
+                    <div class="slot" onclick="document.getElementById('f3').click()" id="s3"><input type="file" id="f3" hidden onchange="pre(this,3)">FOTO 4</div>
                 </div>
-                <input type="hidden" id="edit-id">
-                <input type="text" id="nnome" placeholder="Nome do Produto">
-                <input type="number" id="npreco" placeholder="Preço (R$)">
-                <input type="text" id="ncategoria" placeholder="Categoria (ex: OVERSIZED)">
-                <textarea id="ndesc" placeholder="Descrição"></textarea>
-                <button class="btn-save" id="btn-pub" onclick="salvar()">SALVAR PRODUTO</button>
+                <input type="hidden" id="eid">
+                <input type="text" id="enome" placeholder="Nome">
+                <input type="number" id="epreco" placeholder="Preço (R$)">
+                <input type="text" id="ecat" placeholder="Categoria">
+                <textarea id="edesc" placeholder="Descrição"></textarea>
+                <button class="btn-acao" onclick="salvar()">SALVAR PRODUTO</button>
             </div>
         </div>
-        <div id="sec-estoque" class="section"><h2>Estoque Atual</h2><div id="lista-estoque"></div></div>
-        <div id="sec-config" class="section"><h2>Configurações</h2><div class="card"><input type="text" id="wa-num" placeholder="WhatsApp (Ex: 55839...)"><button class="btn-save" onclick="salvarWA()">ATUALIZAR WHATSAPP</button></div></div>
+
+        <div id="sec-estoque" class="section">
+            <h2>Gerenciar Estoque</h2>
+            <div id="lista"></div>
+        </div>
+
+        <div id="sec-config" class="section">
+            <h2>Configurações</h2>
+            <div class="card">
+                <input type="text" id="wa-num" placeholder="WhatsApp (Ex: 5583...)">
+                <button class="btn-acao" onclick="salvarWA()">ATUALIZAR NÚMERO</button>
+            </div>
+        </div>
     </div>
 
     <script>
         const _supabase = supabase.createClient('https://fxmoxqvtamsxqpabbade.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ4moxqvtamsxqpabbadeiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM0Njc3NTgsImV4cCI6MjA4OTA0Mzc1OH0.H2mn5rb2WChGw9yWMrdk3MpYIHH1N0hKZMeggOEiQBU');
         let fotos = ["", "", "", ""];
 
-        async function check() {
-            const { data: { session } } = await _supabase.auth.getSession();
-            if (!session) window.location.replace("login.html");
-            else document.body.style.opacity = "1";
-        }
-
-        function preview(input, i) {
+        function pre(input, i) {
             const reader = new FileReader();
             reader.onload = (e) => {
                 fotos[i] = e.target.result;
@@ -76,34 +79,30 @@
         }
 
         async function salvar() {
-            const id = document.getElementById('edit-id').value;
+            const id = document.getElementById('eid').value;
             const dados = {
-                nome: document.getElementById('nnome').value,
-                preco: parseFloat(document.getElementById('npreco').value),
-                categoria: document.getElementById('ncategoria').value.toUpperCase(),
-                descricao: document.getElementById('ndesc').value,
+                nome: document.getElementById('enome').value,
+                preco: parseFloat(document.getElementById('epreco').value),
+                categoria: document.getElementById('ecat').value.toUpperCase(),
+                descricao: document.getElementById('edesc').value,
                 imagem_url: fotos[0],
-                fotos_extras: fotos.slice(1).filter(f => f && f.length > 50).join(',')
+                fotos_extras: fotos.slice(1).filter(f => f.length > 50).join(',')
             };
-            if(!id && !dados.imagem_url) return alert("Adicione a foto de capa!");
+            
             let res;
-            if(id) {
-                if(!fotos[0]) delete dados.imagem_url;
-                res = await _supabase.from('Produtos').update(dados).eq('id', id);
-            } else {
-                res = await _supabase.from('Produtos').insert([dados]);
-            }
-            if(!res.error) { alert("Sucesso!"); location.reload(); } else { alert("Erro ao salvar: " + res.error.message); }
+            if(id) res = await _supabase.from('Produtos').update(dados).eq('id', id);
+            else res = await _supabase.from('Produtos').insert([dados]);
+            
+            if(!res.error) { alert("Sucesso!"); location.reload(); }
         }
 
         async function listar() {
             const { data } = await _supabase.from('Produtos').select('*').order('id', { ascending: false });
-            document.getElementById('lista-estoque').innerHTML = data.map(p => `
-                <div class="item-row">
-                    <img src="${p.imagem_url}" class="img-mini">
+            document.getElementById('lista').innerHTML = data.map(p => `
+                <div class="item">
+                    <img src="${p.imagem_url}">
                     <div style="flex:1"><b>${p.nome}</b><br><small>${p.categoria}</small></div>
-                    <button class="btn-status ${p.esgotado?'out':''}" onclick="toggle(${p.id}, ${p.esgotado})">${p.esgotado?'ESGOTADO':'OK'}</button>
-                    <button onclick='editar(${JSON.stringify(p).replace(/'/g, "&apos;")})'>✏️</button>
+                    <button onclick='editar(${JSON.stringify(p)})'>✏️</button>
                     <button onclick="excluir(${p.id})" style="color:red">✖</button>
                 </div>
             `).join('');
@@ -111,12 +110,12 @@
 
         function editar(p) {
             show('novo');
-            document.getElementById('form-title').innerText = "Editando Peça";
-            document.getElementById('edit-id').value = p.id;
-            document.getElementById('nnome').value = p.nome;
-            document.getElementById('npreco').value = p.preco;
-            document.getElementById('ncategoria').value = p.categoria;
-            document.getElementById('ndesc').value = p.descricao;
+            document.getElementById('titulo').innerText = "Editando: " + p.nome;
+            document.getElementById('eid').value = p.id;
+            document.getElementById('enome').value = p.nome;
+            document.getElementById('epreco').value = p.preco;
+            document.getElementById('ecat').value = p.categoria;
+            document.getElementById('edesc').value = p.descricao;
             
             fotos[0] = p.imagem_url;
             document.getElementById('s0').innerHTML = `<img src="${p.imagem_url}">`;
@@ -124,12 +123,23 @@
             const extras = p.fotos_extras ? p.fotos_extras.split(',') : [];
             for(let i=1; i<=3; i++) {
                 fotos[i] = extras[i-1] || "";
-                document.getElementById('s'+i).innerHTML = fotos[i] ? `<img src="${fotos[i]}">` : `+ FOTO`;
+                document.getElementById('s'+i).innerHTML = fotos[i] ? `<img src="${fotos[i]}">` : `FOTO ${i+1}`;
             }
         }
 
-        async function toggle(id, st) { await _supabase.from('Produtos').update({ esgotado: !st }).eq('id', id); listar(); }
         async function excluir(id) { if(confirm("Apagar?")) { await _supabase.from('Produtos').delete().eq('id', id); listar(); } }
+        
+        async function salvarWA() {
+            const num = document.getElementById('wa-num').value.replace(/\D/g, '');
+            await _supabase.from('Configuracoes').upsert({ id: 1, whaatsapp: num });
+            alert("WhatsApp Atualizado!");
+        }
+
+        async function carregarWA() {
+            const { data } = await _supabase.from('Configuracoes').select('whaatsapp').eq('id', 1).maybeSingle();
+            if(data) document.getElementById('wa-num').value = data.whaatsapp;
+        }
+
         function show(id, btn) {
             document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
             document.getElementById('sec-'+id).classList.add('active');
@@ -138,16 +148,6 @@
                 btn.classList.add('active');
             }
         }
-        async function salvarWA() {
-            const num = document.getElementById('wa-num').value.replace(/\D/g, '');
-            const { error } = await _supabase.from('Configuracoes').upsert({ id: 1, whaatsapp: num });
-            if(!error) alert("WhatsApp Atualizado!"); else alert("Erro: " + error.message);
-        }
-        async function carregarWA() {
-            const { data } = await _supabase.from('Configuracoes').select('whaatsapp').eq('id', 1).maybeSingle();
-            if(data) document.getElementById('wa-num').value = data.whaatsapp;
-        }
-        check();
     </script>
 </body>
 </html>
