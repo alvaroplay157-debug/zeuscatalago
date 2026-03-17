@@ -30,4 +30,71 @@
         .info { padding: 20px 0; }
         .info h3 { font-family: 'Playfair Display'; color: var(--gold); font-size: 1.4rem; }
         .price { display: block; margin: 5px 0 20px; opacity: 0.7; }
-        .btn-wa
+        .btn-wa { background: #25D366; color: white; padding: 18px; text-decoration: none; display: block; text-align: center; font-weight: 700; font-size: 11px; letter-spacing: 2px; border-radius: 8px; }
+        .btn-wa.disabled { background: #444; pointer-events: none; opacity: 0.6; }
+    </style>
+</head>
+<body>
+    <a href="login.html" class="admin-access">ACESSO</a>
+    <header><h1>ZEUS</h1><p>Urban Luxury</p></header>
+    <div class="filters" id="filtros"></div>
+    <div class="grid" id="grid"></div>
+
+    <script>
+        const _supabase = supabase.createClient('https://fxmoxqvtamsxqpabbade.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ4bW94cXZ0YW1zeHFwYWJiYWRlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM0Njc3NTgsImV4cCI6MjA4OTA0Mzc1OH0.H2mn5rb2WChGw9yWMrdk3MpYIHH1N0hKZMeggOEiQBU');
+        let produtosGerais = [];
+        let whatsAppConfig = "";
+
+        async function init() {
+            const { data: cfg } = await _supabase.from('Configuracoes').select('whaatsapp').eq('id', 1).single();
+            whatsAppConfig = cfg ? cfg.whaatsapp.replace(/\D/g, '') : "";
+
+            const { data } = await _supabase.from('Produtos').select('*').order('id', { ascending: false });
+            produtosGerais = data || [];
+            render(produtosGerais);
+            
+            const cats = ['TODOS', ...new Set(produtosGerais.map(p => p.categoria).filter(c => c))];
+            document.getElementById('filtros').innerHTML = cats.map(c => `<button class="f-btn ${c==='TODOS'?'active':''}" onclick="filtrar('${c}', this)">${c}</button>`).join('');
+        }
+
+        function render(lista) {
+            document.getElementById('grid').innerHTML = lista.map((p, idx) => {
+                const fotos = [p.imagem_url, ...(p.fotos_extras ? p.fotos_extras.split(',') : [])].filter(u => u);
+                const inds = fotos.map((_, i) => `<div class="ind-bar ${i===0?'active':''}" id="ind-${idx}-${i}"></div>`).join('');
+                const imgs = fotos.map(u => `<img src="${u}">`).join('');
+                return `
+                <div class="card">
+                    ${p.esgotado ? '<div class="badge-out">ESGOTADO</div>' : ''}
+                    <div class="img-container" onclick="nextPhoto(${idx}, ${fotos.length})">
+                        <div class="slide-indicators">${inds}</div>
+                        <div class="slider-wrapper" id="wrap-${idx}">${imgs}</div>
+                    </div>
+                    <div class="info">
+                        <h3>${p.nome}</h3>
+                        <span class="price">R$ ${parseFloat(p.preco).toFixed(2)}</span>
+                        <a href="https://wa.me/${whatsAppConfig}?text=Interesse:%20${encodeURIComponent(p.nome)}" 
+                           class="btn-wa ${p.esgotado ? 'disabled' : ''}" target="_blank">
+                           ${p.esgotado ? 'INDISPONÍVEL' : 'COMPRAR AGORA'}
+                        </a>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        let slidePos = {};
+        function nextPhoto(idx, total) {
+            if (total <= 1) return;
+            slidePos[idx] = ((slidePos[idx] || 0) + 1) % total;
+            document.getElementById(`wrap-${idx}`).style.transform = `translateX(-${slidePos[idx]*100}%)`;
+            document.querySelectorAll(`[id^="ind-${idx}-"]`).forEach((b, i) => b.classList.toggle('active', i === slidePos[idx]));
+        }
+
+        function filtrar(c, btn) {
+            document.querySelectorAll('.f-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            render(c === 'TODOS' ? produtosGerais : produtosGerais.filter(p => p.categoria === c));
+        }
+        init();
+    </script>
+</body>
+</html>
