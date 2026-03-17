@@ -11,26 +11,20 @@
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { font-family: 'Inter', sans-serif; background: var(--maroon); color: var(--cream); overflow-x: hidden; }
 
-        /* Animações */
-        @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-
-        .admin-access { position: absolute; top: 20px; right: 30px; font-size: 10px; color: var(--gold); text-decoration: none; opacity: 0.5; z-index: 100; letter-spacing: 2px; }
-
         header { height: 35vh; display: flex; flex-direction: column; justify-content: center; align-items: center; background: radial-gradient(circle at center, #2a0006 0%, #1a0004 100%); }
         header h1 { font-family: 'Playfair Display', serif; font-size: clamp(3.5rem, 15vw, 7rem); color: var(--gold); letter-spacing: 15px; margin-bottom: 10px; }
         header p { letter-spacing: 8px; opacity: 0.6; font-size: 0.7rem; text-transform: uppercase; }
 
-        .filters { display: flex; justify-content: center; gap: 15px; margin: 30px 0; padding: 10px; flex-wrap: wrap; }
-        .f-btn { background: none; border: 1px solid rgba(201, 168, 76, 0.3); color: var(--gold); padding: 10px 25px; cursor: pointer; font-size: 11px; border-radius: 50px; transition: 0.3s; text-transform: uppercase; letter-spacing: 1px; }
-        .f-btn.active { background: var(--gold); color: var(--maroon); border-color: var(--gold); box-shadow: 0 0 15px rgba(201, 168, 76, 0.3); }
-
-        /* Centralização da Grid */
         .container { max-width: 1200px; margin: 0 auto; padding: 0 20px 60px; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 40px; justify-content: center; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 40px; justify-content: center; margin-top: 40px; }
 
-        .card { position: relative; animation: fadeInUp 0.8s ease forwards; }
-        
-        .img-container { width: 100%; aspect-ratio: 3/4; position: relative; overflow: hidden; border-radius: 12px; background: #0b0002; cursor: pointer; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .filters { display: flex; justify-content: center; gap: 15px; margin: 30px 0; padding: 10px; flex-wrap: wrap; }
+        .f-btn { background: none; border: 1px solid rgba(201, 168, 76, 0.3); color: var(--gold); padding: 10px 25px; cursor: pointer; font-size: 11px; border-radius: 50px; transition: 0.3s; text-transform: uppercase; }
+        .f-btn.active { background: var(--gold); color: var(--maroon); }
+
+        /* Card e Carrossel */
+        .card { position: relative; background: rgba(255,255,255,0.02); border-radius: 15px; padding-bottom: 20px; transition: 0.3s; }
+        .img-container { width: 100%; aspect-ratio: 3/4; position: relative; overflow: hidden; border-radius: 12px; background: #000; cursor: pointer; }
         .slider-wrapper { display: flex; width: 100%; height: 100%; transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1); }
         .slider-wrapper img { width: 100%; height: 100%; object-fit: cover; flex-shrink: 0; }
         
@@ -38,31 +32,23 @@
         .ind-bar { height: 3px; flex: 1; background: rgba(255,255,255,0.15); border-radius: 2px; }
         .ind-bar.active { background: var(--gold); }
 
-        .info { padding: 25px 5px; }
-        .info h3 { font-family: 'Playfair Display'; color: var(--gold); font-size: 1.6rem; margin-bottom: 5px; letter-spacing: 1px; }
-        .price { display: block; font-size: 1.1rem; margin-bottom: 20px; opacity: 0.8; font-weight: 300; }
+        .info { padding: 25px 15px; }
+        .info h3 { font-family: 'Playfair Display'; color: var(--gold); font-size: 1.6rem; margin-bottom: 5px; }
+        .price { display: block; font-size: 1.1rem; margin-bottom: 20px; opacity: 0.8; }
 
-        /* Botões de Ação */
-        .actions-group { display: flex; flex-direction: column; gap: 12px; }
-        .btn-main { background: #25D366; color: white; padding: 18px; text-decoration: none; display: block; text-align: center; font-weight: 700; font-size: 12px; letter-spacing: 2px; border-radius: 8px; transition: 0.3s; text-transform: uppercase; }
-        .btn-main:hover { transform: translateY(-3px); box-shadow: 0 5px 15px rgba(37, 211, 102, 0.3); }
-        
-        .secondary-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        .btn-sec { background: rgba(255,255,255,0.05); border: 1px solid rgba(201, 168, 76, 0.2); color: var(--gold); padding: 12px; font-size: 10px; text-align: center; cursor: pointer; border-radius: 6px; transition: 0.2s; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 5px; }
-        .btn-sec:hover { background: rgba(201, 168, 76, 0.1); }
+        .btn-main { background: #25D366; color: white; padding: 18px; text-decoration: none; display: block; text-align: center; font-weight: 700; border-radius: 8px; font-size: 12px; letter-spacing: 2px; }
+        .secondary-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
+        .btn-sec { background: rgba(255,255,255,0.05); border: 1px solid rgba(201, 168, 76, 0.2); color: var(--gold); padding: 12px; font-size: 10px; text-align: center; cursor: pointer; border-radius: 6px; }
+
+        .esgotado-label { position: absolute; top: 20px; left: 20px; background: #ff4444; color: white; padding: 6px 15px; font-size: 10px; font-weight: bold; border-radius: 4px; z-index: 20; }
 
         /* Modal Medidas */
-        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); display: none; justify-content: center; align-items: center; z-index: 1000; padding: 20px; }
-        .modal-content { background: var(--white); color: #222; padding: 30px; border-radius: 15px; max-width: 500px; width: 100%; text-align: center; position: relative; }
-        .modal-content img { width: 100%; margin-top: 15px; }
-        .close-modal { position: absolute; top: 15px; right: 15px; font-size: 24px; cursor: pointer; color: var(--maroon); }
-
-        .esgotado-label { position: absolute; top: 20px; left: 20px; background: #ff4444; color: white; padding: 6px 15px; font-size: 10px; font-weight: bold; border-radius: 4px; z-index: 20; letter-spacing: 1px; }
-        .disabled { opacity: 0.5; pointer-events: none; background: #444 !important; }
+        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); display: none; justify-content: center; align-items: center; z-index: 1000; }
+        .modal-content { background: white; padding: 20px; border-radius: 15px; max-width: 90%; text-align: center; color: #222; }
+        .modal-content img { width: 100%; border-radius: 10px; }
     </style>
 </head>
 <body>
-    <a href="login.html" class="admin-access">ACESSO RESTRITO</a>
     <header><h1>ZEUS</h1><p>Urban Luxury</p></header>
     
     <div class="filters" id="filtros"></div>
@@ -72,59 +58,51 @@
     </div>
 
     <div class="modal" id="modalMedidas" onclick="this.style.display='none'">
-        <div class="modal-content" onclick="event.stopPropagation()">
-            <span class="close-modal" onclick="document.getElementById('modalMedidas').style.display='none'">&times;</span>
-            <h2 style="font-family: 'Playfair Display'">Tabela de Medidas</h2>
-            <p style="font-size: 13px; color: #666; margin-bottom: 15px;">Confira o tamanho ideal para você</p>
-            <img src="https://down-br.img.susercontent.com/file/br-11134207-7qukw-ljv7n9m63m0995" alt="Tabela de Medidas">
+        <div class="modal-content">
+            <h2 style="font-family: 'Playfair Display'; margin-bottom: 15px;">Tabela de Medidas</h2>
+            <img src="https://down-br.img.susercontent.com/file/br-11134207-7qukw-ljv7n9m63m0995">
         </div>
     </div>
 
     <script>
-        // CHAVE CORRIGIDA E COMPLETA
-        const _supabase = supabase.createClient('https://fxmoxqvtamsxqpabbade.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ4bW94cXZ0YW1zeHFwYWJiYWRlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM0Njc3NTgsImV4cCI6MjA4OTA0Mzc1OH0.H2mn5rb2WChGw9yWMrdk3MpYIHH1N0hKZMeggOEiQBU');
+        const _supabase = supabase.createClient('https://fxmoxqvtamsxqpabbade.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ4moxqvtamsxqpabbadeiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM0Njc3NTgsImV4cCI6MjA4OTA0Mzc1OH0.H2mn5rb2WChGw9yWMrdk3MpYIHH1N0hKZMeggOEiQBU');
         
         let produtosGerais = [];
         let whatsAppConfig = "";
 
         async function init() {
             try {
-                // Carregar WhatsApp
                 const { data: cfg } = await _supabase.from('Configuracoes').select('whaatsapp').eq('id', 1).single();
-                whatsAppConfig = cfg ? cfg.whaatsapp.replace(/\D/g, '') : "5583900000000";
+                whatsAppConfig = cfg ? cfg.whaatsapp : "";
 
-                // Carregar Produtos
                 const { data, error } = await _supabase.from('Produtos').select('*').order('id', { ascending: false });
                 if (error) throw error;
 
                 produtosGerais = data || [];
                 render(produtosGerais);
                 
-                // Criar Filtros
                 const cats = ['TODOS', ...new Set(produtosGerais.map(p => p.categoria).filter(c => c))];
                 document.getElementById('filtros').innerHTML = cats.map(c => `
                     <button class="f-btn ${c==='TODOS'?'active':''}" onclick="filtrar('${c}', this)">${c}</button>
                 `).join('');
-
-            } catch (err) {
-                console.error("Erro ao carregar dados:", err);
-            }
+            } catch (err) { console.error("Erro:", err); }
         }
 
         function render(lista) {
             const grid = document.getElementById('grid');
-            if(lista.length === 0) {
-                grid.innerHTML = "<p style='grid-column: 1/-1; text-align:center; opacity:0.5'>Nenhum produto encontrado.</p>";
-                return;
-            }
-
             grid.innerHTML = lista.map((p, idx) => {
-                const fotos = [p.imagem_url, ...(p.fotos_extras ? p.fotos_extras.split(',') : [])].filter(u => u && u.length > 10);
+                // CORREÇÃO CRÍTICA: Lógica de fotos ultra-resistente
+                let extras = [];
+                if (p.fotos_extras) {
+                    extras = p.fotos_extras.split(',').map(f => f.trim()).filter(f => f.length > 50);
+                }
+                const fotos = [p.imagem_url, ...extras].filter(f => f && f.length > 50);
+                
                 const inds = fotos.map((_, i) => `<div class="ind-bar ${i===0?'active':''}" id="ind-${idx}-${i}"></div>`).join('');
-                const imgs = fotos.map(u => `<img src="${u}" loading="lazy">`).join('');
+                const imgs = fotos.map((f, i) => `<img src="${f}" ${i > 0 ? 'loading="lazy"' : ''}>`).join('');
                 
                 return `
-                <div class="card" style="animation-delay: ${idx * 0.1}s">
+                <div class="card">
                     ${p.esgotado ? '<div class="esgotado-label">ESGOTADO</div>' : ''}
                     <div class="img-container" onclick="nextPhoto(${idx}, ${fotos.length})">
                         <div class="slide-indicators">${inds}</div>
@@ -133,21 +111,13 @@
                     <div class="info">
                         <h3>${p.nome}</h3>
                         <span class="price">R$ ${parseFloat(p.preco).toFixed(2)}</span>
-                        
-                        <div class="actions-group">
-                            <a href="https://wa.me/${whatsAppConfig}?text=Olá! Tenho interesse no produto: ${encodeURIComponent(p.nome)}" 
-                               class="btn-main ${p.esgotado ? 'disabled' : ''}" target="_blank">
-                               ${p.esgotado ? 'INDISPONÍVEL' : 'COMPRAR VIA WHATSAPP'}
-                            </a>
-                            
-                            <div class="secondary-actions">
-                                <div class="btn-sec" onclick="document.getElementById('modalMedidas').style.display='flex'">
-                                    📏 MEDIDAS
-                                </div>
-                                <div class="btn-sec" onclick="compartilhar('${p.nome}', ${p.id})">
-                                    🔗 COMPARTILHAR
-                                </div>
-                            </div>
+                        <a href="https://wa.me/${whatsAppConfig}?text=Interesse:%20${encodeURIComponent(p.nome)}" 
+                           class="btn-main" ${p.esgotado ? 'style="background:#444;pointer-events:none"' : ''}>
+                           ${p.esgotado ? 'INDISPONÍVEL' : 'COMPRAR VIA WHATSAPP'}
+                        </a>
+                        <div class="secondary-actions">
+                            <div class="btn-sec" onclick="document.getElementById('modalMedidas').style.display='flex'">📏 MEDIDAS</div>
+                            <div class="btn-sec" onclick="compartilhar('${p.nome}')">🔗 PARTILHAR</div>
                         </div>
                     </div>
                 </div>`;
@@ -167,18 +137,16 @@
         function filtrar(c, btn) {
             document.querySelectorAll('.f-btn').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
-            const filtrados = c === 'TODOS' ? produtosGerais : produtosGerais.filter(p => p.categoria === c);
-            render(filtrados);
+            render(c === 'TODOS' ? produtosGerais : produtosGerais.filter(p => p.categoria === c));
         }
 
-        function compartilhar(nome, id) {
-            const texto = `Olha essa peça da ZEUS: ${nome}`;
+        function compartilhar(nome) {
             const url = window.location.href;
             if (navigator.share) {
-                navigator.share({ title: 'ZEUS Urban Luxury', text: texto, url: url });
+                navigator.share({ title: 'ZEUS', text: 'Peça incrível na ZEUS: ' + nome, url: url });
             } else {
-                navigator.clipboard.writeText(`${texto} - ${url}`);
-                alert("Link copiado para a área de transferência!");
+                navigator.clipboard.writeText(url);
+                alert("Link da loja copiado!");
             }
         }
 
