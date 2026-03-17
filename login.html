@@ -5,14 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ZEUS - Acesso</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@400;600&swap" rel="stylesheet">
     <style>
         :root { --maroon: #1a0004; --gold: #C9A84C; }
         body { background: var(--maroon); font-family: 'Inter', sans-serif; height: 100vh; display: flex; justify-content: center; align-items: center; margin: 0; }
         .login-card { background: rgba(255, 255, 255, 0.05); padding: 40px; border-radius: 15px; border: 1px solid rgba(201, 168, 76, 0.2); width: 90%; max-width: 380px; text-align: center; }
-        h2 { font-family: 'Playfair Display', serif; color: var(--gold); letter-spacing: 5px; }
+        h2 { font-family: 'Playfair Display', serif; color: var(--gold); letter-spacing: 5px; margin-bottom: 30px; }
         input { width: 100%; padding: 15px; margin-bottom: 15px; border-radius: 8px; border: 1px solid rgba(201, 168, 76, 0.3); background: rgba(0,0,0,0.2); color: white; box-sizing: border-box; outline: none; }
-        .btn-login { background: var(--gold); color: var(--maroon); width: 100%; padding: 15px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; text-transform: uppercase; }
+        .btn-login { background: var(--gold); color: var(--maroon); width: 100%; padding: 15px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; text-transform: uppercase; transition: 0.3s; }
+        .btn-login:hover { background: #dcb95d; }
     </style>
 </head>
 <body>
@@ -23,14 +24,13 @@
         <button class="btn-login" onclick="entrar()">ENTRAR</button>
     </div>
     <script>
-        // CHAVE CORRIGIDA ABAIXO
-        const _supabase = supabase.createClient('https://fxmoxqvtamsxqpabbade.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ4bW94cXZ0YW1zeHFwYWJiYWRlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM0Njc3NTgsImV4cCI6MjA4OTA0Mzc1OH0.H2mn5rb2WChGw9yWMrdk3MpYIHH1N0hKZMeggOEiQBU');
+        const _supabase = supabase.createClient('https://fxmoxqvtamsxqpabbade.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ4moxqvtamsxqpabbadeiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM0Njc3NTgsImV4cCI6MjA4OTA0Mzc1OH0.H2mn5rb2WChGw9yWMrdk3MpYIHH1N0hKZMeggOEiQBU');
         
         async function entrar() {
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
-            const { error } = await _supabase.auth.signInWithPassword({ email, password });
-            if (error) alert("Erro: " + error.message);
+            const { data, error } = await _supabase.auth.signInWithPassword({ email, password });
+            if (error) alert("Acesso Negado: " + error.message);
             else window.location.replace('admin.html');
         }
 
